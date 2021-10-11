@@ -1,0 +1,12 @@
+C:\share\Version 1\bin\Debug\Version 1.exe.config
+C:\share\Version 1\bin\Debug\Version 1.exe
+C:\share\Version 1\bin\Debug\Version 1.pdb
+C:\share\Version 1\obj\Debug\Version 1.csprojAssemblyReference.cache
+C:\share\Version 1\obj\Debug\Version_1.Consultas.resources
+C:\share\Version 1\obj\Debug\Version_1.Properties.Resources.resources
+C:\share\Version 1\obj\Debug\Version_1.Registrarse.resources
+C:\share\Version 1\obj\Debug\Version 1.csproj.GenerateResource.cache
+C:\share\Version 1\obj\Debug\Version 1.csproj.CoreCompileInputs.cache
+C:\share\Version 1\obj\Debug\Version 1.exe
+C:\share\Version 1\obj\Debug\Version 1.pdb
+C:\share\Version 1\obj\Debug\Version_1.iniciar_Sesion.resources
