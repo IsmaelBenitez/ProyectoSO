@@ -16,7 +16,7 @@ namespace Version_1
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Consultas());
+            Application.Run(new iniciar_Sesion());
         }
     }
 }

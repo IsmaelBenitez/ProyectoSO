@@ -55,8 +55,9 @@ namespace Version_1
                         {
                             MessageBox.Show("Usuario encontrado");
                             this.Close();
-                            //Consultas Form =new Consultas();
-                            //Form.ShowDialog();
+                            Consultas Form =new Consultas();
+                            Form.ShowDialog();
+                            this.Close();
                         }
                         else
                         {
