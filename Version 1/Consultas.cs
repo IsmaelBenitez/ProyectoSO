@@ -31,6 +31,7 @@ namespace Version_1
         {
             if (textBox1.Text != null)
             {
+                errorProvider1.SetError(textBox1, string.Empty);
                 //Conectamos el serivdor
                 IPAddress direc = IPAddress.Parse("192.168.56.102");
                 IPEndPoint ipep = new IPEndPoint(direc, 9200);
@@ -39,7 +40,7 @@ namespace Version_1
                 {
                     server.Connect(ipep);//Intentamos conectar el socket
                     MessageBox.Show("Conectado");
-      
+
                     if (porcentaje.Checked)
                     {
                         string mensaje = "3/" + textBox1.Text;
@@ -53,7 +54,7 @@ namespace Version_1
                         if (mensaje == "E")
                             MessageBox.Show("Error en la búsqueda");
                         else
-                            MessageBox.Show("El porcentaje de victorias de "+textBox1.Text+" es: " + mensaje);
+                            MessageBox.Show("El porcentaje de victorias de " + textBox1.Text + " es: " + mensaje);
                     }
                     else if (Favorito.Checked)
                     {
@@ -72,37 +73,41 @@ namespace Version_1
                     }
                     else if (ganador.Checked)
                     {
-                        string mensaje = "5/" + textBox1.Text;
-                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                        server.Send(msg);
+                        if (textBox1.Text.All(char.IsDigit))
+                        {
+                            string mensaje = "5/" + textBox1.Text;
+                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                            server.Send(msg);
 
-                        //Recibimos la respuesta del servidor
-                        byte[] msg2 = new byte[80];
-                        server.Receive(msg2);
-                        mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                        if (mensaje == "E")
-                            MessageBox.Show("Error en la búsqueda");
+                            //Recibimos la respuesta del servidor
+                            byte[] msg2 = new byte[80];
+                            server.Receive(msg2);
+                            mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+                            if (mensaje == "E")
+                                MessageBox.Show("Error en la búsqueda");
+                            else
+                                MessageBox.Show("El gandor de la partida con id: " + textBox1.Text + " fue: " + mensaje);
+                        }
                         else
-                            MessageBox.Show("El gandor de la partida con id: " + textBox1.Text + " fue: " + mensaje);
+                            errorProvider1.SetError(textBox1, "El Id de partida debe ser numérico");
                     }
-
-                    
-                   
-
+                    else
+                        errorProvider1.SetError(btnEnviar, "Debes seleccionar una de las opciones");
                 }
                 catch (SocketException ex)
                 {
                     //Si hay excepcion imprimimos error y salimos del programa con return 
                     MessageBox.Show("No he podido conectar con el servidor");
                     return;
-                    }
-                    catch (OverflowException)
-                    {
-                        MessageBox.Show("Problema de rebasamiento");
-                    }
+                }
+                catch (OverflowException)
+                {
+                    MessageBox.Show("Problema de rebasamiento");
+                }
             }
             else
-                MessageBox.Show("Por favor introduce los datos");
+                errorProvider1.SetError(textBox1, "Por favor introduce los datos");
+
         }
     }
 }

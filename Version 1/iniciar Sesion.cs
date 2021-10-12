@@ -22,12 +22,19 @@ namespace Version_1
 
         private void btnIniciar_sesion_Click(object sender, EventArgs e)
         {
-            if (NombreBox.Text == null || ContrBox.Text == null)
+            if (NombreBox.Text==string.Empty || ContrBox.Text== string.Empty)
             {
-                MessageBox.Show("Por favor ingrese todos los datos");
+                if(NombreBox.Text == string.Empty)
+                    errorProvider1.SetError(NombreBox, "Por favor ingrese todos los datos");
+                if (ContrBox.Text == string.Empty)
+                    errorProvider1.SetError(ContrBox, "Por favor ingrese todos los datos");
             }
             else
             {
+                //Limpiamos el simbolo de error
+                errorProvider1.SetError(NombreBox, string.Empty);
+                errorProvider1.SetError(ContrBox, string.Empty);
+
                 //Establecemos conexión con el servidor
                 IPAddress direc = IPAddress.Parse("192.168.56.102");
                 IPEndPoint ipep = new IPEndPoint(direc, 9200);
@@ -85,7 +92,8 @@ namespace Version_1
 
         private void iniciar_Sesion_Load(object sender, EventArgs e)
         {
-
+            errorProvider1.SetError(NombreBox, string.Empty);
+            errorProvider1.SetError(ContrBox, string.Empty);
         }
 
         private void btnRegistrarte_Click(object sender, EventArgs e)
@@ -93,6 +101,16 @@ namespace Version_1
             Registrarse Form = new Registrarse();
             Form.ShowDialog();
 
+        }
+
+        private void NombreBox_TextChanged(object sender, EventArgs e)
+        {
+            errorProvider1.SetError(NombreBox, string.Empty);
+        }
+
+        private void ContrBox_TextChanged(object sender, EventArgs e)
+        {
+            errorProvider1.SetError(ContrBox, string.Empty);
         }
     }
 }

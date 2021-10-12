@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.nombreBox = new System.Windows.Forms.TextBox();
             this.ContraBox = new System.Windows.Forms.TextBox();
             this.ComContraBox = new System.Windows.Forms.TextBox();
@@ -35,6 +36,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.btnRegistrarse = new System.Windows.Forms.Button();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // nombreBox
@@ -43,13 +46,17 @@
             this.nombreBox.Name = "nombreBox";
             this.nombreBox.Size = new System.Drawing.Size(100, 20);
             this.nombreBox.TabIndex = 0;
+            this.nombreBox.TextChanged += new System.EventHandler(this.nombreBox_TextChanged);
             // 
             // ContraBox
             // 
+            this.ContraBox.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.ContraBox.Location = new System.Drawing.Point(191, 106);
             this.ContraBox.Name = "ContraBox";
             this.ContraBox.Size = new System.Drawing.Size(100, 20);
             this.ContraBox.TabIndex = 1;
+            this.ContraBox.UseSystemPasswordChar = true;
+            this.ContraBox.TextChanged += new System.EventHandler(this.ContraBox_TextChanged);
             // 
             // ComContraBox
             // 
@@ -57,6 +64,8 @@
             this.ComContraBox.Name = "ComContraBox";
             this.ComContraBox.Size = new System.Drawing.Size(100, 20);
             this.ComContraBox.TabIndex = 2;
+            this.ComContraBox.UseSystemPasswordChar = true;
+            this.ComContraBox.TextChanged += new System.EventHandler(this.ComContraBox_TextChanged);
             // 
             // label1
             // 
@@ -87,6 +96,7 @@
             // 
             // btnRegistrarse
             // 
+            this.btnRegistrarse.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnRegistrarse.Location = new System.Drawing.Point(134, 239);
             this.btnRegistrarse.Name = "btnRegistrarse";
             this.btnRegistrarse.Size = new System.Drawing.Size(75, 23);
@@ -94,6 +104,10 @@
             this.btnRegistrarse.Text = "Registrarse";
             this.btnRegistrarse.UseVisualStyleBackColor = true;
             this.btnRegistrarse.Click += new System.EventHandler(this.btnRegistrarse_Click);
+            // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
             // 
             // Registrarse
             // 
@@ -109,6 +123,8 @@
             this.Controls.Add(this.nombreBox);
             this.Name = "Registrarse";
             this.Text = "Registrarse";
+            this.Load += new System.EventHandler(this.Registrarse_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -123,5 +139,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btnRegistrarse;
+        private System.Windows.Forms.ErrorProvider errorProvider1;
     }
 }

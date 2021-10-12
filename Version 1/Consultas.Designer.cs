@@ -28,12 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.porcentaje = new System.Windows.Forms.RadioButton();
             this.Favorito = new System.Windows.Forms.RadioButton();
             this.ganador = new System.Windows.Forms.RadioButton();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.btnEnviar = new System.Windows.Forms.Button();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // porcentaje
@@ -88,6 +91,7 @@
             // 
             // btnEnviar
             // 
+            this.btnEnviar.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnEnviar.Location = new System.Drawing.Point(129, 313);
             this.btnEnviar.Name = "btnEnviar";
             this.btnEnviar.Size = new System.Drawing.Size(75, 23);
@@ -95,6 +99,10 @@
             this.btnEnviar.Text = "Enviar";
             this.btnEnviar.UseVisualStyleBackColor = true;
             this.btnEnviar.Click += new System.EventHandler(this.btnEnviar_Click);
+            // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
             // 
             // Consultas
             // 
@@ -110,6 +118,7 @@
             this.Name = "Consultas";
             this.Text = "Consultas";
             this.Load += new System.EventHandler(this.Consultas_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -123,6 +132,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnEnviar;
+        private System.Windows.Forms.ErrorProvider errorProvider1;
     }
 }
 

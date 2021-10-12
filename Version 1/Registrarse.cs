@@ -22,16 +22,25 @@ namespace Version_1
 
         private void btnRegistrarse_Click(object sender, EventArgs e)
         {
-            if (nombreBox.Text == null || ContraBox.Text == null || ComContraBox.Text == null)
+            if (nombreBox.Text == string.Empty || ContraBox.Text == string.Empty || ComContraBox.Text == string.Empty)
             {
-                MessageBox.Show("Por favor ingrese todos los datos");
+                if (nombreBox.Text == string.Empty)
+                    errorProvider1.SetError(nombreBox, "Por favor introduce todos los datos");
+                if (ContraBox.Text == string.Empty)
+                    errorProvider1.SetError(ContraBox, "Por favor introduce todos los datos");
+                if (ComContraBox.Text == string.Empty)
+                    errorProvider1.SetError(ComContraBox, "Por favor introduce todos los datos");
             }
             else if (ContraBox.Text != ComContraBox.Text)
             {
-                MessageBox.Show("Por favor, las contraseñas deben ser iguales");
+                errorProvider1.SetError(ContraBox, "Por favor, las contraseñas deben ser iguales");
+                errorProvider1.SetError(ComContraBox, "Por favor, las contraseñas deben ser iguales");
             }
             else
             {
+                errorProvider1.SetError(nombreBox,string.Empty);
+                errorProvider1.SetError(ContraBox,string.Empty);
+                errorProvider1.SetError(ComContraBox, string.Empty);
                 //Establecemos conexión con el servidor
                 IPAddress direc = IPAddress.Parse("192.168.56.102");
                 IPEndPoint ipep = new IPEndPoint(direc, 9200);
@@ -91,6 +100,28 @@ namespace Version_1
                     return;
                 }
             }
+        }
+
+        private void Registrarse_Load(object sender, EventArgs e)
+        {
+            errorProvider1.SetError(nombreBox, string.Empty);
+            errorProvider1.SetError(ContraBox, string.Empty);
+            errorProvider1.SetError(ComContraBox, string.Empty);
+        }
+
+        private void nombreBox_TextChanged(object sender, EventArgs e)
+        {
+            errorProvider1.SetError(nombreBox, string.Empty);
+        }
+
+        private void ContraBox_TextChanged(object sender, EventArgs e)
+        {
+            errorProvider1.SetError(ContraBox, string.Empty);
+        }
+
+        private void ComContraBox_TextChanged(object sender, EventArgs e)
+        {
+            errorProvider1.SetError(ComContraBox, string.Empty);
         }
     }
 }

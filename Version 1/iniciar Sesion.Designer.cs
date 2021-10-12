@@ -28,12 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnIniciar_sesion = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.NombreBox = new System.Windows.Forms.TextBox();
             this.ContrBox = new System.Windows.Forms.TextBox();
             this.btnRegistrarte = new System.Windows.Forms.Button();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnIniciar_sesion
@@ -71,6 +74,7 @@
             this.NombreBox.Name = "NombreBox";
             this.NombreBox.Size = new System.Drawing.Size(100, 20);
             this.NombreBox.TabIndex = 3;
+            this.NombreBox.TextChanged += new System.EventHandler(this.NombreBox_TextChanged);
             // 
             // ContrBox
             // 
@@ -79,9 +83,11 @@
             this.ContrBox.Size = new System.Drawing.Size(100, 20);
             this.ContrBox.TabIndex = 4;
             this.ContrBox.UseSystemPasswordChar = true;
+            this.ContrBox.TextChanged += new System.EventHandler(this.ContrBox_TextChanged);
             // 
             // btnRegistrarte
             // 
+            this.btnRegistrarte.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnRegistrarte.Location = new System.Drawing.Point(174, 237);
             this.btnRegistrarte.Name = "btnRegistrarte";
             this.btnRegistrarte.Size = new System.Drawing.Size(75, 23);
@@ -89,6 +95,10 @@
             this.btnRegistrarte.Text = "Registrarte";
             this.btnRegistrarte.UseVisualStyleBackColor = true;
             this.btnRegistrarte.Click += new System.EventHandler(this.btnRegistrarte_Click);
+            // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
             // 
             // iniciar_Sesion
             // 
@@ -104,6 +114,7 @@
             this.Name = "iniciar_Sesion";
             this.Text = "Iniciar Sesion";
             this.Load += new System.EventHandler(this.iniciar_Sesion_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -117,5 +128,6 @@
         private System.Windows.Forms.TextBox NombreBox;
         private System.Windows.Forms.TextBox ContrBox;
         private System.Windows.Forms.Button btnRegistrarte;
+        private System.Windows.Forms.ErrorProvider errorProvider1;
     }
 }
