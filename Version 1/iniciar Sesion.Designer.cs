@@ -71,6 +71,7 @@
             // NombreBox
             // 
             this.NombreBox.Location = new System.Drawing.Point(149, 81);
+            this.NombreBox.MaxLength = 50;
             this.NombreBox.Name = "NombreBox";
             this.NombreBox.Size = new System.Drawing.Size(100, 20);
             this.NombreBox.TabIndex = 3;
@@ -79,6 +80,7 @@
             // ContrBox
             // 
             this.ContrBox.Location = new System.Drawing.Point(149, 144);
+            this.ContrBox.MaxLength = 50;
             this.ContrBox.Name = "ContrBox";
             this.ContrBox.Size = new System.Drawing.Size(100, 20);
             this.ContrBox.TabIndex = 4;

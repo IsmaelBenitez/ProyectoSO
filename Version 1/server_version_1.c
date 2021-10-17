@@ -27,12 +27,143 @@ int main(int argc, char *argv[]) {
 				mysql_errno(conn), mysql_error(conn));
 		exit (1);
 	}
+	//Inicializamos el Socket
+	int sock_conn, sock_listen, ret;
+	struct sockaddr_in serv_adr;
+	char peticion[512];
+	char respuesta[512];
+	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		printf("Error creant socket");
+	memset(&serv_adr, 0, sizeof(serv_adr));// inicialitza a zero serv_addr
+	serv_adr.sin_family = AF_INET;
+	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
+	
+	serv_adr.sin_port = htons(9080);
+	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
+		printf ("Error al bind");
+	if (listen(sock_listen, 3) < 0)
+		printf("Error en el Listen");
+	//Socket iniciado
+	//Bucle infinito para escuchar y devolver mensajes
+	while(1==1)
+	{
+		int i =0;
+		printf ("Escuchando\n");
+		
+		sock_conn = accept(sock_listen, NULL, NULL);
+		printf ("He recibido conexion\n");
+		ret=read(sock_conn,peticion, sizeof(peticion));
+		printf ("Recibido\n");
+		peticion[ret]='\0';
+		printf ("Peticion: %s\n",peticion);
+		
+		//Partimos el mensaje para saber que piden.
+		char *p =strtok(peticion,"/");
+		int codigo =atoi(p);
+		if(codigo==1)
+		{
+			char nombre[60];
+			char contra[60];
+			
+			p=strtok(NULL,"/");
+			strcpy(nombre,p);
+
+			
+			p=strtok(NULL,"/");
+			strcpy(contra,p);
+
+			
+			i =EstaRegistrado( nombre,contra, err,conn,resultado,row);
+			
+			if (i==1)
+			{
+				sprintf(respuesta,"%s\n","OK");
+
+				write (sock_conn,respuesta, strlen(respuesta));
+			}
+			else
+			{
+				sprintf(respuesta,"%s\n","NO");
+				
+				write (sock_conn,respuesta, strlen(respuesta));
+			}
+			close(sock_conn); 
+			
+		}
+		if (codigo==2)
+		{
+			char nombre[60];
+			char contra[60];
+			
+			p=strtok(NULL,"/");
+			strcpy(nombre,p);
+			
+			
+			p=strtok(NULL,"/");
+			strcpy(contra,p);
+			
+			i=Registrar(nombre, contra,err,conn,resultado,row);
+			
+			if(i==1)
+			{
+				sprintf(respuesta,"%s\n","OK");
+				
+				write (sock_conn,respuesta, strlen(respuesta));
+			}
+			else
+			{
+				sprintf(respuesta,"%s\n","NO");
+				
+				write (sock_conn,respuesta, strlen(respuesta));
+			}
+			close(sock_conn); 
+		}
+		if (codigo==3)
+		{
+			char nombre[60];
+			
+			p=strtok(NULL,"/");
+			strcpy(nombre,p);
+			PorcentajeVictorias(nombre,respuesta, err,conn,resultado,row);
+			printf("%s\n",respuesta);
+			if (strcmp(respuesta,"-1.00")==0)
+			{
+				sprintf(respuesta,"%s\n","E");
+				printf("%s",respuesta);
+				write (sock_conn,respuesta, strlen(respuesta));
+			}
+			else
+				write (sock_conn,respuesta, strlen(respuesta));
+			close(sock_conn); 
+		}
+		if (codigo==4)
+		{
+			char nombre[60];
+			
+			p=strtok(NULL,"/");
+			strcpy(nombre,p);
+			JugadorFavorito(nombre,respuesta, err,conn,resultado,row);
+			write (sock_conn,respuesta, strlen(respuesta));
+			close(sock_conn); 
+		}
+		if (codigo==5)
+		{
+			char identificador[60];
+			char nombre[60];
+			p=strtok(NULL,"/");
+			strcpy(identificador,p);
+			GanadorPartida(identificador,nombre, err,conn,resultado,row);
+			write (sock_conn,nombre, strlen(nombre));
+			close(sock_conn); 
+		}
+		
+	}
 }
 
 
 //FUNCIONES PARA EL FUNCIONAMIENTO DEL SERVER
 int EstaRegistrado(char nombre[60],char contrasena[60], int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
-	char consulta[100];
+	char consulta[500];
 	strcpy(consulta,"Select Nombre,Contraseña FROM Jugador WHERE Nombre='");
 	strcat(consulta,nombre);
 	strcat (consulta,"' AND Contraseña='");
@@ -53,8 +184,8 @@ int EstaRegistrado(char nombre[60],char contrasena[60], int err,MYSQL *conn,MYSQ
 		return 1;
 }
 int Registrar(char nombre[60],char contrasena[60], int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
-	char consulta[100];
-	char consulta2[100];
+	char consulta[500];
+	char consulta2[500];
 	int yaesta;
 	yaesta=EstaRegistrado(nombre,contrasena, err,conn,resultado,row);
 	if (yaesta==0){
@@ -97,7 +228,7 @@ int Registrar(char nombre[60],char contrasena[60], int err,MYSQL *conn,MYSQL_RES
 }
 
 void PorcentajeVictorias(char nombre[60],char *solucion[10], int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
-	char consulta [200];
+	char consulta [500];
 	float porcentaje;
 	strcpy(consulta,"SELECT Jugador.Partidas_ganadas, Jugador.Partidas_jugadas FROM Jugador WHERE Nombre = '");
 	strcat (consulta, nombre);
@@ -131,21 +262,26 @@ void PorcentajeVictorias(char nombre[60],char *solucion[10], int err,MYSQL *conn
 	{
 		int Partidas_ganadas=atoi(row[0]);
 		int Partidas_jugadas=atoi(row[1]);
-		porcentaje=((float) Partidas_ganadas/(float)Partidas_jugadas)*100;
+		if (Partidas_jugadas==0)
+			porcentaje=0;
+		else
+		{
+			porcentaje=((float) Partidas_ganadas/(float)Partidas_jugadas)*100;
+		}
 		printf("Ganadas: %d \n",Partidas_ganadas);
 		printf("Jugadas: %d \n",Partidas_jugadas);
-		printf("El ratio de victorias es: %f \n",resultado);
+		printf("El ratio de victorias es: %.2f \n",porcentaje);
 	}
-	sprintf(solucion,"%f",porcentaje);
+	sprintf(solucion,"%.2f",porcentaje);
 }
 void JugadorFavorito(char nombre[60],char *avatar[60],int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
-	char consulta[200];
+	char consulta[500];
 	int ismael=0;
 	int itziar=0;
 	int guillem=0;
 	int victor=0;
 	int azahara=0;
-	strcpy(consulta,"SELECT Participacion.Avatar FROM (Jugador, Participacion) WHERE Jugador.Nombre = '");
+	strcpy(consulta,"SELECT Participacion.Avatar,Jugador.Partidas_jugadas FROM (Jugador, Participacion) WHERE Jugador.Nombre = '");
 	strcat (consulta, nombre);
 	strcat (consulta,"' AND Participacion.Id_J = Jugador.Identificador");
 	err=mysql_query (conn, consulta);
@@ -159,7 +295,7 @@ void JugadorFavorito(char nombre[60],char *avatar[60],int err,MYSQL *conn,MYSQL_
 	row = mysql_fetch_row (resultado);
 	if (row == NULL){
 		printf ("No se han obtenido datos en la consulta\n");
-		strcpy(avatar,"E");
+		strcpy(avatar,"X");
 	}
 	
 	else
@@ -200,13 +336,15 @@ void JugadorFavorito(char nombre[60],char *avatar[60],int err,MYSQL *conn,MYSQL_
 		}
 		
 		printf("El avatar más jugado es: %s \n",avatar);
+		
 	}
 }
 void GanadorPartida(char Identificador[60],char *nombre[60],int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
-	char consulta[200];
+	char consulta[500];
 	strcpy(consulta,"SELECT Jugador.nombre FROM (Jugador, Partida) WHERE Partida.Identificador = '");
 	strcat (consulta, Identificador);
 	strcat (consulta,"' AND Partida.Ganador = Jugador.Identificador");
+	printf("%s\n",consulta);
 	err=mysql_query (conn, consulta);
 	if (err!=0) {
 		printf ("Error al consultar datos de la base %u %s\n",
@@ -218,11 +356,12 @@ void GanadorPartida(char Identificador[60],char *nombre[60],int err,MYSQL *conn,
 	row = mysql_fetch_row (resultado);
 	if (row == NULL){
 		printf ("No se han obtenido datos en la consulta\n");
-		strcpy(nombre,"E");
+		strcpy(nombre,"X");
 	}
 	else
 	{
 		printf("El ganador de la partida %s, es %s \n",Identificador,row[0]);
 		strcpy(nombre,row[0]);
+		printf("%s\n",nombre);
 	}
 }

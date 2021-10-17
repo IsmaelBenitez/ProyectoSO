@@ -42,13 +42,12 @@ namespace Version_1
                 errorProvider1.SetError(ContraBox,string.Empty);
                 errorProvider1.SetError(ComContraBox, string.Empty);
                 //Establecemos conexión con el servidor
-                IPAddress direc = IPAddress.Parse("192.168.56.102");
-                IPEndPoint ipep = new IPEndPoint(direc, 9200);
+                IPAddress direc = IPAddress.Parse("169.254.15.179");
+                IPEndPoint ipep = new IPEndPoint(direc, 9080);
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 try
                 {
                     server.Connect(ipep);//Intentamos conectar el socket
-                    MessageBox.Show("Conectado");
                     try
                     {
 
@@ -64,7 +63,7 @@ namespace Version_1
                         server.Receive(msg2);
                         Mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
 
-                        if (Mensaje == "OK")
+                        if (Mensaje == "OK\n")
                         {
                             MessageBox.Show("Usuario Creado");
                             this.Close();
@@ -72,7 +71,7 @@ namespace Version_1
                         }
                         else
                         {
-                            MessageBox.Show("Error:no se ha podido registrar al usuario");
+                            MessageBox.Show("Error: no se ha podido registrar al usuario");
                         }
                         server.Shutdown(SocketShutdown.Both);
                         server.Close();
@@ -83,11 +82,6 @@ namespace Version_1
                         MessageBox.Show("Problema de rebasamiento");
                     }
 
-                    try
-                    {
-                        server.Connect(ipep);//Intentamos conectar el socket
-                        MessageBox.Show("Conectado");
-                    }
                     catch (SocketException ex)
                     {
                         MessageBox.Show("No he podido conectar con el servidor");

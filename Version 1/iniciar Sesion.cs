@@ -36,13 +36,13 @@ namespace Version_1
                 errorProvider1.SetError(ContrBox, string.Empty);
 
                 //Establecemos conexión con el servidor
-                IPAddress direc = IPAddress.Parse("192.168.56.102");
-                IPEndPoint ipep = new IPEndPoint(direc, 9200);
+                IPAddress direc = IPAddress.Parse("169.254.15.179");
+                IPEndPoint ipep = new IPEndPoint(direc, 9080);
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 try
                 {
                     server.Connect(ipep);//Intentamos conectar el socket
-                    MessageBox.Show("Conectado");
+            
                     try
                     {
 
@@ -57,14 +57,15 @@ namespace Version_1
                         byte[] msg2 = new byte[80];
                         server.Receive(msg2);
                         Mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-
-                        if (Mensaje == "OK")
+                       
+                        if (Mensaje == "OK\n")
                         {
                             MessageBox.Show("Usuario encontrado");
-                            this.Close();
+                            this.Hide();
                             Consultas Form =new Consultas();
                             Form.ShowDialog();
                             this.Close();
+                            
                         }
                         else
                         {
@@ -98,8 +99,10 @@ namespace Version_1
 
         private void btnRegistrarte_Click(object sender, EventArgs e)
         {
+            this.Hide();
             Registrarse Form = new Registrarse();
             Form.ShowDialog();
+            this.Show();
 
         }
 

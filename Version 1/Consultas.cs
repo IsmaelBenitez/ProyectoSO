@@ -23,8 +23,7 @@ namespace Version_1
 
         private void Consultas_Load(object sender, EventArgs e)
         {
-            iniciar_Sesion Form = new iniciar_Sesion();
-            Form.ShowDialog();
+
         }
 
         private void btnEnviar_Click(object sender, EventArgs e)
@@ -33,13 +32,12 @@ namespace Version_1
             {
                 errorProvider1.SetError(textBox1, string.Empty);
                 //Conectamos el serivdor
-                IPAddress direc = IPAddress.Parse("192.168.56.102");
-                IPEndPoint ipep = new IPEndPoint(direc, 9200);
+                IPAddress direc = IPAddress.Parse("169.254.15.179");
+                IPEndPoint ipep = new IPEndPoint(direc, 9080);
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 try
                 {
                     server.Connect(ipep);//Intentamos conectar el socket
-                    MessageBox.Show("Conectado");
 
                     if (porcentaje.Checked)
                     {
@@ -51,7 +49,7 @@ namespace Version_1
                         byte[] msg2 = new byte[80];
                         server.Receive(msg2);
                         mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                        if (mensaje == "E")
+                        if (mensaje == "E\n")
                             MessageBox.Show("Error en la búsqueda");
                         else
                             MessageBox.Show("El porcentaje de victorias de " + textBox1.Text + " es: " + mensaje);
@@ -68,28 +66,29 @@ namespace Version_1
                         mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
                         if (mensaje == "E")
                             MessageBox.Show("Error en la búsqueda");
+                        else if (mensaje == "X")
+                            MessageBox.Show("Este usuario no tiene registrada ninguna partida");
                         else
-                            MessageBox.Show("El personaje de " + textBox1.Text + " es: " + mensaje);
+                            MessageBox.Show("El personaje favorito de " + textBox1.Text + " es: " + mensaje);
                     }
                     else if (ganador.Checked)
                     {
-                        if (textBox1.Text.All(char.IsDigit))
-                        {
-                            string mensaje = "5/" + textBox1.Text;
-                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                            server.Send(msg);
+                        string mensaje = "5/" + textBox1.Text;
+                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                        server.Send(msg);
 
-                            //Recibimos la respuesta del servidor
-                            byte[] msg2 = new byte[80];
-                            server.Receive(msg2);
-                            mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                            if (mensaje == "E")
-                                MessageBox.Show("Error en la búsqueda");
-                            else
-                                MessageBox.Show("El gandor de la partida con id: " + textBox1.Text + " fue: " + mensaje);
+                        //Recibimos la respuesta del servidor
+                        byte[] msg2 = new byte[80];
+                        server.Receive(msg2);
+                        mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+                        if (mensaje == "E")
+                            MessageBox.Show("Error en la búsqueda");
+                        else if (mensaje == "X")
+                        {
+                            MessageBox.Show("No se han obtenido datos en la consulta");
                         }
                         else
-                            errorProvider1.SetError(textBox1, "El Id de partida debe ser numérico");
+                            MessageBox.Show("El gandor de la partida con id: " + textBox1.Text + " fue: " + mensaje);                       
                     }
                     else
                         errorProvider1.SetError(btnEnviar, "Debes seleccionar una de las opciones");
@@ -108,6 +107,11 @@ namespace Version_1
             else
                 errorProvider1.SetError(textBox1, "Por favor introduce los datos");
 
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            errorProvider1.SetError(textBox1, string.Empty);
         }
     }
 }

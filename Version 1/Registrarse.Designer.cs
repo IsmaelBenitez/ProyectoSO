@@ -43,6 +43,7 @@
             // nombreBox
             // 
             this.nombreBox.Location = new System.Drawing.Point(191, 53);
+            this.nombreBox.MaxLength = 50;
             this.nombreBox.Name = "nombreBox";
             this.nombreBox.Size = new System.Drawing.Size(100, 20);
             this.nombreBox.TabIndex = 0;
@@ -52,6 +53,7 @@
             // 
             this.ContraBox.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.ContraBox.Location = new System.Drawing.Point(191, 106);
+            this.ContraBox.MaxLength = 50;
             this.ContraBox.Name = "ContraBox";
             this.ContraBox.Size = new System.Drawing.Size(100, 20);
             this.ContraBox.TabIndex = 1;
@@ -61,6 +63,7 @@
             // ComContraBox
             // 
             this.ComContraBox.Location = new System.Drawing.Point(191, 154);
+            this.ComContraBox.MaxLength = 50;
             this.ComContraBox.Name = "ComContraBox";
             this.ComContraBox.Size = new System.Drawing.Size(100, 20);
             this.ComContraBox.TabIndex = 2;
