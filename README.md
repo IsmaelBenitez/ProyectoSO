@@ -1,7 +1,7 @@
 # ProyectoSO
- Proyecto del grupo 5 de la asignatura de sistemas opertaivos\n
+ Proyecto del grupo 5 de la asignatura de sistemas opertaivos
 
-Versión 1 
+Versión 1 \n
 Cliente-Servidor y consultas básicas
 · Generada por Ismael Benítez
 · Verificada por Itziar Mensa
