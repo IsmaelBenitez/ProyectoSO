@@ -80,6 +80,8 @@ namespace cliente
                 textBox1.Visible = false;
                 textBox1.Text = string.Empty;
                 btn_Enviar.Enabled = false;
+                Grid.Visible = false;
+                btn_Refrescar.Visible = false;
 
                 //Desaparece el registrarse
                 label3.Visible = false;
@@ -160,6 +162,8 @@ namespace cliente
                         btn_Registrarse.Visible = false;
                         nombre1Text.Text = string.Empty;
                         Contra1Text.Text = string.Empty;
+                        
+                        
 
                         //Aparecen los datos de hacer consultas
                         label6.Visible = true;
@@ -168,7 +172,9 @@ namespace cliente
                         ganador.Visible = true;
                         btn_Enviar.Visible = true;
                         textBox1.Visible = true;
-                        
+                        Grid.Visible = true;
+                        btn_Refrescar.Visible = true;
+
 
                     }
                     else
@@ -205,6 +211,7 @@ namespace cliente
             btn_Registrarse.Visible = false;
             nombre1Text.Text = string.Empty;
             Contra1Text.Text = string.Empty;
+            
 
         }
 
@@ -266,6 +273,8 @@ namespace cliente
                         ganador.Visible = true;
                         btn_Enviar.Visible = true;
                         textBox1.Visible = true;
+                        Grid.Visible = true;
+                        btn_Refrescar.Visible = true;
 
                     }
                     else
@@ -376,10 +385,51 @@ namespace cliente
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            string Mensaje = "0/";
+            try
+            {
+                string Mensaje = "0/";
 
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
+                server.Send(msg);
+            }
+            catch 
+            {
+                
+            }
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btn_Refrescar_Click(object sender, EventArgs e)
+        {
+            string mensaje = "6/" + textBox1.Text;
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
+
+            //Recibimos la respuesta del servidor
+            byte[] msg2 = new byte[80];
+            server.Receive(msg2);
+            mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+            string[] nombres=new string[100];
+            nombres= mensaje.Split('/');
+            MessageBox.Show(nombres[0]);
+            MessageBox.Show(nombres[1]);
+            Grid.ColumnCount = 1;
+            
+            Grid.RowCount = Convert.ToInt32(nombres[0])+1;
+            Grid.Rows[0].Cells[0].Value = "Conectados";
+            for (int i = 1; i < Grid.RowCount; i++)
+            {
+                Grid.Rows[i].Cells[0].Value = nombres[i];
+            }
+        }
+
+        private void Grid_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

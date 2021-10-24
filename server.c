@@ -6,8 +6,129 @@
 #include <netinet/in.h>
 #include <stdio.h>
 #include <mysql.h>
-//MAIN DEL SERVER
-int main(int argc, char *argv[]) {
+#include <pthread.h>
+
+typedef struct{
+	char nombre[60];
+	int socket;
+}Conectado;
+typedef struct{
+	Conectado conectados[100];
+	int num;
+}ListaConectados;
+typedef struct{
+	ListaConectados *Lista;
+	int sockets;
+}Tparam;
+
+
+int AnadirConectado (ListaConectados *lista, char nombre[60], int socket){
+	printf("He entrado en la funcion\n");
+	printf(" lista.num=%d\n",lista->num);
+	if (lista->num == 100)
+	{
+		printf("Estoy en el primer if\n");
+		return -1;
+		
+	}
+	else{
+		printf("Voy a returnear 0\n");
+		strcpy(lista->conectados[lista->num].nombre,nombre);
+		printf("He puesto el nombre\n");
+		lista->conectados[lista->num].socket = socket;
+		printf("He puesto el socket\n");
+		lista->num++;
+		printf("Lista.num= %d",lista->num);
+		return 0;
+	}
+}
+int DameSocket (ListaConectados *lista, char nombre[20]){
+	// Devuelve el socket o -1 si no está en la lista
+	int i=0;
+	int encontrado =0;
+	while ((i< lista->num) && !encontrado ){
+		if (strcmp(lista->conectados[i].nombre,nombre)==0)
+			encontrado =1;
+		if (!encontrado)
+			i=i+1;
+	}
+	if (encontrado)
+		return lista->conectados[i].socket;
+	else
+		return -1;
+	
+}
+int DamePos (ListaConectados *lista, char nombre[20]){
+	// Devuelve la posicion en la lista o -1 si no está en la lista
+	int i=0;
+	int encontrado =0;
+	while ((i< lista->num) && !encontrado ){
+		if (strcmp(lista->conectados[i].nombre,nombre)==0)
+			encontrado =1;
+		if (!encontrado)
+			i=i+1;
+	}
+	if (encontrado)
+		return i;
+	else
+		return -1;
+}
+int Elimina(ListaConectados *lista, char nombre[20]){
+	//Devuelve el socket o -1 si no está en la lista
+
+	int pos = DamePos (lista,nombre);
+	if (pos==-1)
+		return -1;
+	else
+	{
+		int i;
+		for (i=pos; i< lista->num-1;i++)
+		{
+			lista->conectados[i] = lista->conectados[i+1];
+		}
+		lista->num--;
+		return 0;
+		
+	}
+}
+void DameConectados ( ListaConectados *lista, char *conectados[300]){
+	//Pone en conectados los nombres de todos los conectados separados por /. Primero pone el num de conectados
+	sprintf(conectados,"%d", lista->num);
+	int i;
+	for (i=0; i< lista->num; i++)
+		sprintf(conectados, "%s/%s", conectados, lista->conectados[i].nombre);
+}
+void DameTodosSockets ( ListaConectados *lista, char nombres[80], char *sockets){
+	//Escribe una funciÃ³n que recibe un vector de caracteres con los nombres de jugadores
+	//separados por comas y revuelve una cadena de caracteres con los sockets de cada uno
+	//de estos jugadores, tambiÃ©n separados por comas.
+	printf("vector nombres %s\n", nombres);
+	char *p=strtok(nombres,",");
+	int i=0;
+	int n=lista->num;
+	printf("%d\n",n);
+	while (p!=NULL){
+		while (i<n){
+			if (strcmp(lista->conectados[i].nombre,p)==0)
+			{
+				printf("He entrado %s\n",lista->conectados[i].nombre);
+				int valor=lista->conectados[i].socket;
+				sprintf(sockets,"%s, %d", sockets, valor);
+			}
+			i=i+1;
+		}
+		i=0;
+		p=strtok(NULL,",");
+		
+	}
+}
+
+//FUNCIONES PARA EL FUNCIONAMIENTO DEL SERVER
+void *AtenderCliente(void *parametros) {
+	Tparam *l;
+	l=(Tparam*) parametros;
+	ListaConectados *Lista=l->Lista;
+	printf ("%s",Lista->conectados[0].nombre);
 	MYSQL *conn;
 	int err;
 	// Estructura especial para almacenar resultados de consultas 
@@ -27,151 +148,164 @@ int main(int argc, char *argv[]) {
 				mysql_errno(conn), mysql_error(conn));
 		exit (1);
 	}
+	int sock_conn, ret;
+	sock_conn=l->sockets;
 	//Inicializamos el Socket
-	int sock_conn, sock_listen, ret;
-	struct sockaddr_in serv_adr;
 	char peticion[512];
 	char respuesta[512];
-	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-		printf("Error creant socket");
-	memset(&serv_adr, 0, sizeof(serv_adr));// inicialitza a zero serv_addr
-	serv_adr.sin_family = AF_INET;
-	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	
-	serv_adr.sin_port = htons(9070);
-	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
-		printf ("Error al bind");
-	if (listen(sock_listen, 3) < 0)
-		printf("Error en el Listen");
-	//Socket iniciado
-	//Bucle infinito para escuchar y devolver mensajes
-	while(1==1)
-	{
-		int i =0;
-		printf ("Escuchando\n");
+
+	int i =0;
+	int terminar=0;
+	char nombre[60];
+	printf("size of lista= %d\n",sizeof(Lista));
+	//printf("El numero de lista es %d=\n",Lista->num);
+	while(terminar==0){
+		ret=read(sock_conn,peticion, sizeof(peticion));
+		printf ("Recibido\n");
+		peticion[ret]='\0';
 		
-		sock_conn = accept(sock_listen, NULL, NULL);
-		printf ("He recibido conexion\n");
-		int terminar=0;
-		while(terminar==0){
-			ret=read(sock_conn,peticion, sizeof(peticion));
-			printf ("Recibido\n");
-			peticion[ret]='\0';
+		printf ("Peticion: %s\n",peticion);
+		
+		
+		
+		//Partimos el mensaje para saber que piden.
+		char *p =strtok(peticion,"/");
+		int codigo =atoi(p);
+		printf("COdigo: %d\n",codigo);
+		
+		
+		if (codigo==0)
+			terminar=1;
+		if(codigo==1)
+		{
+			printf("Estoy en el codigo 1\n");
+			char contra[60];
 			
-			printf ("Peticion: %s\n",peticion);
+			p=strtok(NULL,"/");
+			strcpy(nombre,p);
 			
 			
-			
-			//Partimos el mensaje para saber que piden.
-			char *p =strtok(peticion,"/");
-			int codigo =atoi(p);
+			p=strtok(NULL,"/");
+			strcpy(contra,p);
 			
 			
-			if (codigo==0)
-				terminar=1;
-			if(codigo==1)
+			i =EstaRegistrado( nombre,contra, err,conn,resultado,row);
+			printf("%d\n",sock_conn);
+			printf("%d\n",i);
+			
+			
+			if (i==1)
 			{
-				char nombre[60];
-				char contra[60];
+				printf("Entro en el if porque i=1\n");
 				
-				p=strtok(NULL,"/");
-				strcpy(nombre,p);
-				
-				
-				p=strtok(NULL,"/");
-				strcpy(contra,p);
-				
-				
-				i =EstaRegistrado( nombre,contra, err,conn,resultado,row);
-				
-				if (i==1)
-				{
+				i = AnadirConectado(Lista,nombre,sock_conn);
+				printf("he returneado %d\n",i);
+				if(i==0){
 					sprintf(respuesta,"%s\n","OK");
-					
 					write (sock_conn,respuesta, strlen(respuesta));
 				}
-				else
-				{
+				else{
 					sprintf(respuesta,"%s\n","NO");
 					
 					write (sock_conn,respuesta, strlen(respuesta));
 				}
-				
-				
 			}
-			if (codigo==2)
+			else
 			{
-				char nombre[60];
-				char contra[60];
+				sprintf(respuesta,"%s\n","NO");
 				
-				p=strtok(NULL,"/");
-				strcpy(nombre,p);
-				
-				
-				p=strtok(NULL,"/");
-				strcpy(contra,p);
-				
-				i=Registrar(nombre, contra,err,conn,resultado,row);
-				
-				if(i==1)
-				{
-					sprintf(respuesta,"%s\n","OK");
-					
-					write (sock_conn,respuesta, strlen(respuesta));
-				}
-				else
-				{
-					sprintf(respuesta,"%s\n","NO");
-					
-					write (sock_conn,respuesta, strlen(respuesta));
-				}
-				
-			}
-			if (codigo==3)
-			{
-				char nombre[60];
-				
-				p=strtok(NULL,"/");
-				strcpy(nombre,p);
-				PorcentajeVictorias(nombre,respuesta, err,conn,resultado,row);
-				printf("%s\n",respuesta);
-				if (strcmp(respuesta,"-1.00")==0)
-				{
-					sprintf(respuesta,"%s\n","E");
-					printf("%s",respuesta);
-					write (sock_conn,respuesta, strlen(respuesta));
-				}
-				else
-					write (sock_conn,respuesta, strlen(respuesta));
-				
-			}
-			if (codigo==4)
-			{
-				char nombre[60];
-				
-				p=strtok(NULL,"/");
-				strcpy(nombre,p);
-				JugadorFavorito(nombre,respuesta, err,conn,resultado,row);
 				write (sock_conn,respuesta, strlen(respuesta));
-				
 			}
-			if (codigo==5)
-			{
-				char identificador[60];
-				char nombre[60];
-				p=strtok(NULL,"/");
-				strcpy(identificador,p);
-				GanadorPartida(identificador,nombre, err,conn,resultado,row);
-				write (sock_conn,nombre, strlen(nombre));
-				
-			}
+			
+			
 		}
-		close(sock_conn); 
+		if (codigo==2)
+		{
+			
+			char contra[60];
+			
+			p=strtok(NULL,"/");
+			strcpy(nombre,p);
+			
+			
+			p=strtok(NULL,"/");
+			strcpy(contra,p);
+			
+			i=Registrar(nombre, contra,err,conn,resultado,row);
+			
+			if(i==1)
+			{
+				sprintf(respuesta,"%s\n","OK");
+				i = AnadirConectado(Lista,nombre,sock_conn);
+				if(i==0)
+					write (sock_conn,respuesta, strlen(respuesta));
+				else
+				{
+					sprintf(respuesta,"%s\n","NO");
+					
+					write (sock_conn,respuesta, strlen(respuesta));
+				}
+			}
+			else
+			{
+				sprintf(respuesta,"%s\n","NO");
+				
+				write (sock_conn,respuesta, strlen(respuesta));
+			}
+			
+		}
+		if (codigo==3)
+		{
+			char nombre[60];
+			
+			p=strtok(NULL,"/");
+			strcpy(nombre,p);
+			PorcentajeVictorias(nombre,respuesta, err,conn,resultado,row);
+			printf("%s\n",respuesta);
+			if (strcmp(respuesta,"-1.00")==0)
+			{
+				sprintf(respuesta,"%s\n","E");
+				printf("%s",respuesta);
+				write (sock_conn,respuesta, strlen(respuesta));
+			}
+			else
+				write (sock_conn,respuesta, strlen(respuesta));
+			
+		}
+		if (codigo==4)
+		{
+			char nombre[60];
+			
+			p=strtok(NULL,"/");
+			strcpy(nombre,p);
+			JugadorFavorito(nombre,respuesta, err,conn,resultado,row);
+			write (sock_conn,respuesta, strlen(respuesta));
+			
+		}
+		if (codigo==5)
+		{
+			char identificador[60];
+			char nombre[60];
+			p=strtok(NULL,"/");
+			strcpy(identificador,p);
+			GanadorPartida(identificador,nombre, err,conn,resultado,row);
+			write (sock_conn,nombre, strlen(nombre));
+			
+		}
+		if(codigo==6)
+		{
+			char conectados[300];
+			DameConectados (Lista,conectados);
+			printf("Este es el print de la lista de conectados %s\n",conectados);
+			write (sock_conn,conectados, strlen(conectados));
+		}
 	}
+	i =Elimina(Lista,nombre);
+	if(i==0)
+		close(sock_conn);
+	else
+		printf("No se puede desconectar a este usuario");
 }
-
-
-//FUNCIONES PARA EL FUNCIONAMIENTO DEL SERVER
 int EstaRegistrado(char nombre[60],char contrasena[60], int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
 	char consulta[500];
 	strcpy(consulta,"Select Nombre,Contrase�a FROM Jugador WHERE Nombre='");
@@ -375,3 +509,49 @@ void GanadorPartida(char Identificador[60],char *nombre[60],int err,MYSQL *conn,
 		printf("%s\n",nombre);
 	}
 }
+
+//MAIN DEL SERVER
+int main(int argc, char *argv[]){
+	ListaConectados *Lista;
+	Lista->num=0;
+	int sock_conn,ret,sock_listen;
+	struct sockaddr_in serv_adr;
+	char peticion[512];
+	char respuesta[512];
+	// INICIALITZACIONS
+	// Obrim el socket
+	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		printf("Error creant socket");
+	memset(&serv_adr, 0, sizeof(serv_adr));// inicialitza a zero serv_addr
+	serv_adr.sin_family = AF_INET;
+	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
+	
+	serv_adr.sin_port = htons(9070);
+	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
+		printf ("Error al bind");
+	if (listen(sock_listen, 3) < 0)
+		printf("Error en el Listen");
+	int sockets[100];
+	pthread_t thread[100];
+	Tparam parametros[100]; 
+	int i=0;
+
+	printf("size of lista= %d\n",sizeof(Lista));
+	printf("El numero de lista es %d=\n",Lista->num);
+
+	
+	printf("El numero de lista es %d=\n",Lista->num);
+	for (;;)
+	{
+		printf("Escuchando\n");
+		
+		sock_conn=accept(sock_listen,NULL,NULL);
+		printf("He recibido conexion\n");
+
+		parametros[i].Lista= &Lista;
+		parametros[i].sockets=sock_conn;
+		pthread_create(&thread[i],NULL,AtenderCliente,(void *) &parametros[i]);
+		i++;
+	}
+}
+

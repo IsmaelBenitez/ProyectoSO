@@ -51,7 +51,10 @@
             this.ganador = new System.Windows.Forms.RadioButton();
             this.btn_Enviar = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.btn_Refrescar = new System.Windows.Forms.Button();
+            this.Grid = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Grid)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_Desconectar
@@ -105,6 +108,7 @@
             // 
             this.Contra1Text.HideSelection = false;
             this.Contra1Text.Location = new System.Drawing.Point(314, 185);
+            this.Contra1Text.MaxLength = 50;
             this.Contra1Text.Name = "Contra1Text";
             this.Contra1Text.Size = new System.Drawing.Size(100, 20);
             this.Contra1Text.TabIndex = 4;
@@ -115,6 +119,7 @@
             // nombre1Text
             // 
             this.nombre1Text.Location = new System.Drawing.Point(314, 135);
+            this.nombre1Text.MaxLength = 50;
             this.nombre1Text.Name = "nombre1Text";
             this.nombre1Text.Size = new System.Drawing.Size(100, 20);
             this.nombre1Text.TabIndex = 5;
@@ -144,6 +149,7 @@
             // Nombre2Text
             // 
             this.Nombre2Text.Location = new System.Drawing.Point(314, 119);
+            this.Nombre2Text.MaxLength = 50;
             this.Nombre2Text.Name = "Nombre2Text";
             this.Nombre2Text.Size = new System.Drawing.Size(100, 20);
             this.Nombre2Text.TabIndex = 8;
@@ -152,6 +158,7 @@
             // Contra2Text
             // 
             this.Contra2Text.Location = new System.Drawing.Point(314, 159);
+            this.Contra2Text.MaxLength = 50;
             this.Contra2Text.Name = "Contra2Text";
             this.Contra2Text.Size = new System.Drawing.Size(100, 20);
             this.Contra2Text.TabIndex = 9;
@@ -160,6 +167,7 @@
             // Contra3Text
             // 
             this.Contra3Text.Location = new System.Drawing.Point(314, 214);
+            this.Contra3Text.MaxLength = 50;
             this.Contra3Text.Name = "Contra3Text";
             this.Contra3Text.Size = new System.Drawing.Size(100, 20);
             this.Contra3Text.TabIndex = 10;
@@ -220,7 +228,7 @@
             // porcentaje
             // 
             this.porcentaje.AutoSize = true;
-            this.porcentaje.Location = new System.Drawing.Point(548, 158);
+            this.porcentaje.Location = new System.Drawing.Point(284, 178);
             this.porcentaje.Name = "porcentaje";
             this.porcentaje.Size = new System.Drawing.Size(164, 17);
             this.porcentaje.TabIndex = 16;
@@ -232,7 +240,7 @@
             // Favorito
             // 
             this.Favorito.AutoSize = true;
-            this.Favorito.Location = new System.Drawing.Point(548, 188);
+            this.Favorito.Location = new System.Drawing.Point(284, 211);
             this.Favorito.Name = "Favorito";
             this.Favorito.Size = new System.Drawing.Size(147, 17);
             this.Favorito.TabIndex = 17;
@@ -244,7 +252,7 @@
             // ganador
             // 
             this.ganador.AutoSize = true;
-            this.ganador.Location = new System.Drawing.Point(548, 217);
+            this.ganador.Location = new System.Drawing.Point(284, 240);
             this.ganador.Name = "ganador";
             this.ganador.Size = new System.Drawing.Size(163, 17);
             this.ganador.TabIndex = 18;
@@ -256,7 +264,7 @@
             // btn_Enviar
             // 
             this.btn_Enviar.Enabled = false;
-            this.btn_Enviar.Location = new System.Drawing.Point(575, 274);
+            this.btn_Enviar.Location = new System.Drawing.Point(327, 277);
             this.btn_Enviar.Name = "btn_Enviar";
             this.btn_Enviar.Size = new System.Drawing.Size(75, 23);
             this.btn_Enviar.TabIndex = 19;
@@ -267,18 +275,42 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(622, 135);
+            this.textBox1.Location = new System.Drawing.Point(314, 145);
+            this.textBox1.MaxLength = 50;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(100, 20);
             this.textBox1.TabIndex = 20;
             this.textBox1.Visible = false;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
+            // btn_Refrescar
+            // 
+            this.btn_Refrescar.Location = new System.Drawing.Point(25, 97);
+            this.btn_Refrescar.Name = "btn_Refrescar";
+            this.btn_Refrescar.Size = new System.Drawing.Size(75, 23);
+            this.btn_Refrescar.TabIndex = 22;
+            this.btn_Refrescar.Text = "Conectados";
+            this.btn_Refrescar.UseVisualStyleBackColor = true;
+            this.btn_Refrescar.Visible = false;
+            this.btn_Refrescar.Click += new System.EventHandler(this.btn_Refrescar_Click);
+            // 
+            // Grid
+            // 
+            this.Grid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.Grid.Location = new System.Drawing.Point(24, 144);
+            this.Grid.Name = "Grid";
+            this.Grid.Size = new System.Drawing.Size(127, 112);
+            this.Grid.TabIndex = 23;
+            this.Grid.Visible = false;
+            this.Grid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Grid_CellContentClick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.Grid);
+            this.Controls.Add(this.btn_Refrescar);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.btn_Enviar);
             this.Controls.Add(this.ganador);
@@ -305,6 +337,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Grid)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -334,6 +367,8 @@
         private System.Windows.Forms.RadioButton porcentaje;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button btn_Refrescar;
+        private System.Windows.Forms.DataGridView Grid;
     }
 }
 
