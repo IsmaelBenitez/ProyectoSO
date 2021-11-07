@@ -25,6 +25,6 @@ Servidor concurrente, Lista de conectados y Exclusión mutua
 
 · Comunicada por Ismael Benítez  
 
-URL: 
+URL:https://drive.google.com/file/d/1tFgQxhkcQEJiLVlJzbH5lz0ZY3f7YFiS/view?usp=sharing
 
 
