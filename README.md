@@ -11,4 +11,18 @@ Cliente-Servidor y consultas básicas
 
 · Comunicada por Guillem Purtí  
 
-URL: https://drive.google.com/file/d/11KS5QxwfQQRZGEYLVNiHALq0gtII2DDA/view?usp=sharing
+URL: https://drive.google.com/file/d/11KS5QxwfQQRZGEYLVNiHALq0gtII2DDA/view?usp=sharing  
+
+Versión 2  
+
+Servidor concurrente, Lista de conectados y Exclusión mutua  
+
+· Generada por Itziar Mensa  
+
+· Verificada por Guillem Purtí  
+
+· Comunicada por Ismael Benítez  
+
+URL: 
+
+
