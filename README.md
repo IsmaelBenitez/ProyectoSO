@@ -11,7 +11,9 @@ Cliente-Servidor y consultas básicas
 
 · Comunicada por Guillem Purtí  
 
-URL: https://drive.google.com/file/d/11KS5QxwfQQRZGEYLVNiHALq0gtII2DDA/view?usp=sharing  
+URL: https://drive.google.com/file/d/11KS5QxwfQQRZGEYLVNiHALq0gtII2DDA/view?usp=sharing 
+  
+  
 
 Versión 2  
 
