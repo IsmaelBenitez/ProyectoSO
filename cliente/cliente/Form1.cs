@@ -24,7 +24,7 @@ namespace cliente
         {
             //Establecemos conexión con el servidor
             IPAddress direc = IPAddress.Parse("169.254.15.179");
-            IPEndPoint ipep = new IPEndPoint(direc, 9070);
+            IPEndPoint ipep = new IPEndPoint(direc, 9000);
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -39,6 +39,8 @@ namespace cliente
                 btn_Registrarse.Visible = true;
                 btn_Conectar.Enabled = false;
                 btn_Desconectar.Enabled = true;
+               
+
 
 
             }
@@ -94,6 +96,13 @@ namespace cliente
                 Nombre2Text.Text = string.Empty;
                 Contra2Text.Text = string.Empty;
                 Contra3Text.Text = string.Empty;
+
+                //Limpiamos el data grid view de conectados
+                Grid.Rows[0].Cells[0].Value = "Conectados";
+                for (int i = 0; i < Grid.RowCount; i++)
+                {
+                    Grid.Rows[i].Cells[0].Value = null;
+                }
 
 
             }

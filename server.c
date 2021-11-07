@@ -8,20 +8,22 @@
 #include <mysql.h>
 #include <pthread.h>
 
+//Estructuras para la lista de conectados
 typedef struct{
 	char nombre[60];
 	int socket;
 }Conectado;
+
 typedef struct{
 	Conectado conectados[100];
 	int num;
 }ListaConectados;
-typedef struct{
-	ListaConectados *Lista;
-	int sockets;
-}Tparam;
+// Variable globales:
+MYSQL *conn; // Connector con el serivdor de MYSQL
+ListaConectados Lista; // Lista de conectados
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;//Estructura para la implementaci�n de exclusin mutua
 
-
+//Funciones para actuar sobre la lista de conectados
 int AnadirConectado (ListaConectados *lista, char nombre[60], int socket){
 	printf("He entrado en la funcion\n");
 	printf(" lista.num=%d\n",lista->num);
@@ -123,33 +125,20 @@ void DameTodosSockets ( ListaConectados *lista, char nombres[80], char *sockets)
 	}
 }
 
-//FUNCIONES PARA EL FUNCIONAMIENTO DEL SERVER
-void *AtenderCliente(void *parametros) {
-	Tparam *l;
-	l=(Tparam*) parametros;
-	ListaConectados *Lista=l->Lista;
-	printf ("%s",Lista->conectados[0].nombre);
-	MYSQL *conn;
+//Thread para atender peticiones de los clientes
+void *AtenderCliente(void *socket) {
+
+
 	int err;
 	// Estructura especial para almacenar resultados de consultas 
 	MYSQL_RES *resultado;
 	MYSQL_ROW row;
-	//Creamos una conexion al servidor MYSQL 
-	conn = mysql_init(NULL);
-	if (conn==NULL) {
-		printf ("Error al crear la conexiￃﾳn: %u %s\n", 
-				mysql_errno(conn), mysql_error(conn));
-		exit (1);
-	}
-	//inicializar la conexion
-	conn = mysql_real_connect (conn, "localhost","root", "mysql", "BBDD",0, NULL, 0);
-	if (conn==NULL) {
-		printf ("Error al inicializar la conexiￃﾳn: %u %s\n", 
-				mysql_errno(conn), mysql_error(conn));
-		exit (1);
-	}
+	
 	int sock_conn, ret;
-	sock_conn=l->sockets;
+	int *s;
+	s=(int *) socket;
+	sock_conn=*s;
+	struct sockaddr_in serv_adr;
 	//Inicializamos el Socket
 	char peticion[512];
 	char respuesta[512];
@@ -157,8 +146,7 @@ void *AtenderCliente(void *parametros) {
 	int i =0;
 	int terminar=0;
 	char nombre[60];
-	printf("size of lista= %d\n",sizeof(Lista));
-	//printf("El numero de lista es %d=\n",Lista->num);
+	
 	while(terminar==0){
 		ret=read(sock_conn,peticion, sizeof(peticion));
 		printf ("Recibido\n");
@@ -197,8 +185,11 @@ void *AtenderCliente(void *parametros) {
 			if (i==1)
 			{
 				printf("Entro en el if porque i=1\n");
+				//Bloqueamos la parte en la que la lista debe ser modificada
+				pthread_mutex_lock(&mutex);
+				i = AnadirConectado(&Lista,nombre,sock_conn);
+				pthread_mutex_unlock(&mutex);
 				
-				i = AnadirConectado(Lista,nombre,sock_conn);
 				printf("he returneado %d\n",i);
 				if(i==0){
 					sprintf(respuesta,"%s\n","OK");
@@ -236,7 +227,11 @@ void *AtenderCliente(void *parametros) {
 			if(i==1)
 			{
 				sprintf(respuesta,"%s\n","OK");
-				i = AnadirConectado(Lista,nombre,sock_conn);
+				//Bloquemaos la parte deonde la lista est� siendo modificada
+				pthread_mutex_lock(&mutex);
+				i = AnadirConectado(&Lista,nombre,sock_conn);
+				pthread_mutex_unlock(&mutex);
+				
 				if(i==0)
 					write (sock_conn,respuesta, strlen(respuesta));
 				else
@@ -295,17 +290,22 @@ void *AtenderCliente(void *parametros) {
 		if(codigo==6)
 		{
 			char conectados[300];
-			DameConectados (Lista,conectados);
+			DameConectados (&Lista,conectados);
 			printf("Este es el print de la lista de conectados %s\n",conectados);
 			write (sock_conn,conectados, strlen(conectados));
 		}
 	}
-	i =Elimina(Lista,nombre);
+	//Bloqueamos la parte donde la lista est� siendo modificada
+	pthread_mutex_lock(&mutex);
+	i =Elimina(&Lista,nombre);
+	pthread_mutex_unlock(&mutex);
+	
 	if(i==0)
 		close(sock_conn);
 	else
 		printf("No se puede desconectar a este usuario");
 }
+//Funciones para atender las peticiones del server
 int EstaRegistrado(char nombre[60],char contrasena[60], int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
 	char consulta[500];
 	strcpy(consulta,"Select Nombre,Contrase�a FROM Jugador WHERE Nombre='");
@@ -512,12 +512,24 @@ void GanadorPartida(char Identificador[60],char *nombre[60],int err,MYSQL *conn,
 
 //MAIN DEL SERVER
 int main(int argc, char *argv[]){
-	ListaConectados *Lista;
-	Lista->num=0;
-	int sock_conn,ret,sock_listen;
+	//Creamos una conexion al servidor MYSQL 
+	conn = mysql_init(NULL);
+	if (conn==NULL) {
+		printf ("Error al crear la conexiￃﾳn: %u %s\n", 
+				mysql_errno(conn), mysql_error(conn));
+		exit (1);
+	}
+	//inicializar la conexion con la base de datos
+	conn = mysql_real_connect (conn, "localhost","root", "mysql", "BBDD",0, NULL, 0);
+	if (conn==NULL) {
+		printf ("Error al inicializar la conexiￃﾳn: %u %s\n", 
+				mysql_errno(conn), mysql_error(conn));
+		exit (1);
+	}
+	//Estructiras para los sockets
+	int sock_conn,sock_listen;
 	struct sockaddr_in serv_adr;
-	char peticion[512];
-	char respuesta[512];
+
 	// INICIALITZACIONS
 	// Obrim el socket
 	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -525,32 +537,26 @@ int main(int argc, char *argv[]){
 	memset(&serv_adr, 0, sizeof(serv_adr));// inicialitza a zero serv_addr
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	
-	serv_adr.sin_port = htons(9070);
+	serv_adr.sin_port = htons(9000);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
 	if (listen(sock_listen, 3) < 0)
 		printf("Error en el Listen");
+	
+	//Estructuras para el uso de threads
 	int sockets[100];
 	pthread_t thread[100];
-	Tparam parametros[100]; 
+ 
 	int i=0;
-
-	printf("size of lista= %d\n",sizeof(Lista));
-	printf("El numero de lista es %d=\n",Lista->num);
-
-	
-	printf("El numero de lista es %d=\n",Lista->num);
+	// Bucle infinito de atender las peticiones abriendo threads
 	for (;;)
 	{
 		printf("Escuchando\n");
 		
 		sock_conn=accept(sock_listen,NULL,NULL);
 		printf("He recibido conexion\n");
-
-		parametros[i].Lista= &Lista;
-		parametros[i].sockets=sock_conn;
-		pthread_create(&thread[i],NULL,AtenderCliente,(void *) &parametros[i]);
+		sockets[i]=sock_conn;
+		pthread_create(&thread[i],NULL,AtenderCliente,&sockets[i]);
 		i++;
 	}
 }
