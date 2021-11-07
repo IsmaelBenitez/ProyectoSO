@@ -8,3 +8,13 @@ C:\Users\ismae\Documents\GitHub\ProyectoSO\cliente\cliente\obj\Debug\cliente.csp
 C:\Users\ismae\Documents\GitHub\ProyectoSO\cliente\cliente\obj\Debug\cliente.csproj.CoreCompileInputs.cache
 C:\Users\ismae\Documents\GitHub\ProyectoSO\cliente\cliente\obj\Debug\cliente.exe
 C:\Users\ismae\Documents\GitHub\ProyectoSO\cliente\cliente\obj\Debug\cliente.pdb
+C:\Users\guill\Desktop\UNI\3R\SO\PROYECTO\ProyectoSO\cliente\cliente\bin\Debug\cliente.exe.config
+C:\Users\guill\Desktop\UNI\3R\SO\PROYECTO\ProyectoSO\cliente\cliente\bin\Debug\cliente.exe
+C:\Users\guill\Desktop\UNI\3R\SO\PROYECTO\ProyectoSO\cliente\cliente\bin\Debug\cliente.pdb
+C:\Users\guill\Desktop\UNI\3R\SO\PROYECTO\ProyectoSO\cliente\cliente\obj\Debug\cliente.csprojAssemblyReference.cache
+C:\Users\guill\Desktop\UNI\3R\SO\PROYECTO\ProyectoSO\cliente\cliente\obj\Debug\cliente.Form1.resources
+C:\Users\guill\Desktop\UNI\3R\SO\PROYECTO\ProyectoSO\cliente\cliente\obj\Debug\cliente.Properties.Resources.resources
+C:\Users\guill\Desktop\UNI\3R\SO\PROYECTO\ProyectoSO\cliente\cliente\obj\Debug\cliente.csproj.GenerateResource.cache
+C:\Users\guill\Desktop\UNI\3R\SO\PROYECTO\ProyectoSO\cliente\cliente\obj\Debug\cliente.csproj.CoreCompileInputs.cache
+C:\Users\guill\Desktop\UNI\3R\SO\PROYECTO\ProyectoSO\cliente\cliente\obj\Debug\cliente.exe
+C:\Users\guill\Desktop\UNI\3R\SO\PROYECTO\ProyectoSO\cliente\cliente\obj\Debug\cliente.pdb

@@ -23,8 +23,8 @@ namespace cliente
         private void btn_Conectar_Click(object sender, EventArgs e)
         {
             //Establecemos conexión con el servidor
-            IPAddress direc = IPAddress.Parse("169.254.15.179");
-            IPEndPoint ipep = new IPEndPoint(direc, 9000);
+            IPAddress direc = IPAddress.Parse("192.168.56.102");
+            IPEndPoint ipep = new IPEndPoint(direc, 9300);
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
