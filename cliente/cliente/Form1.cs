@@ -23,8 +23,8 @@ namespace cliente
         private void btn_Conectar_Click(object sender, EventArgs e)
         {
             //Establecemos conexión con el servidor
-            IPAddress direc = IPAddress.Parse("192.168.56.102");
-            IPEndPoint ipep = new IPEndPoint(direc, 9300);
+            IPAddress direc = IPAddress.Parse("147.83.117.22");
+            IPEndPoint ipep = new IPEndPoint(direc, 50064);
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -98,12 +98,6 @@ namespace cliente
                 Contra3Text.Text = string.Empty;
 
                 //Limpiamos el data grid view de conectados
-                Grid.Rows[0].Cells[0].Value = "Conectados";
-                for (int i = 0; i < Grid.RowCount; i++)
-                {
-                    Grid.Rows[i].Cells[0].Value = null;
-                }
-
 
             }
             catch
