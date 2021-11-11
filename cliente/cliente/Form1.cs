@@ -9,22 +9,25 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace cliente
 {
     public partial class Form1 : Form
     {
         Socket server;
+        Thread Atender;
         public Form1()
         {
             InitializeComponent();
+            CheckForIllegalCrossThreadCalls = false;
         }
 
         private void btn_Conectar_Click(object sender, EventArgs e)
         {
             //Establecemos conexión con el servidor
-            IPAddress direc = IPAddress.Parse("147.83.117.22");
-            IPEndPoint ipep = new IPEndPoint(direc, 50064);
+            IPAddress direc = IPAddress.Parse("169.254.15.179");
+            IPEndPoint ipep = new IPEndPoint(direc, 9070);
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -39,16 +42,17 @@ namespace cliente
                 btn_Registrarse.Visible = true;
                 btn_Conectar.Enabled = false;
                 btn_Desconectar.Enabled = true;
-               
-
-
-
             }
             catch (SocketException ex)
             {
                 MessageBox.Show("No se ha podido conectar con el servidor");
                 return;
             }
+
+            ThreadStart ts = delegate { AtenderServidor(); };
+            Atender = new Thread(ts);
+            Atender.Start();
+
         }
 
         private void btn_Desconectar_Click(object sender, EventArgs e)
@@ -61,6 +65,9 @@ namespace cliente
 
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
                 server.Send(msg);
+                server.Shutdown(SocketShutdown.Both);
+                server.Close();
+                Atender.Abort();
                 btn_Conectar.Enabled = true;
                 //Desaparecen los datos de iniciar sesión
                 label1.Visible = false;
@@ -146,44 +153,7 @@ namespace cliente
 
                     byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
                     server.Send(msg);
-
-                    //Recibimos la respuesta del servidor
-                    byte[] msg2 = new byte[80];
-                    server.Receive(msg2);
-                    Mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-
-                    if (Mensaje == "OK\n")
-                    {
-                        MessageBox.Show("Usuario encontrado");
-
-                        //Desaparecen los datos de iniciar sesión
-                        label1.Visible = false;
-                        label2.Visible = false;
-                        nombre1Text.Visible = false;
-                        Contra1Text.Visible = false;
-                        btn_Iniciar_Sesion.Visible = false;
-                        btn_Registrarse.Visible = false;
-                        nombre1Text.Text = string.Empty;
-                        Contra1Text.Text = string.Empty;
-                        
-                        
-
-                        //Aparecen los datos de hacer consultas
-                        label6.Visible = true;
-                        porcentaje.Visible = true;
-                        Favorito.Visible = true;
-                        ganador.Visible = true;
-                        btn_Enviar.Visible = true;
-                        textBox1.Visible = true;
-                        Grid.Visible = true;
-                        btn_Refrescar.Visible = true;
-
-
-                    }
-                    else
-                    {
-                        MessageBox.Show("Usuario no encontrado");
-                    }
+                    
                 }
                 catch (OverflowException)
                 {
@@ -214,7 +184,7 @@ namespace cliente
             btn_Registrarse.Visible = false;
             nombre1Text.Text = string.Empty;
             Contra1Text.Text = string.Empty;
-            
+
 
         }
 
@@ -249,41 +219,6 @@ namespace cliente
                     byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
                     server.Send(msg);
 
-                    //Recibimos la respuesta del servidor
-                    byte[] msg2 = new byte[80];
-                    server.Receive(msg2);
-                    Mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-
-                    if (Mensaje == "OK\n")
-                    {
-                        MessageBox.Show("Usuario Creado");
-                        //Desaparece el registrarse
-                        label3.Visible = false;
-                        label4.Visible = false;
-                        label5.Visible = false;
-                        Nombre2Text.Visible = false;
-                        Contra2Text.Visible = false;
-                        Contra3Text.Visible = false;
-                        btn_Registrarse2.Visible = false;
-                        Nombre2Text.Text = string.Empty;
-                        Contra2Text.Text = string.Empty;
-                        Contra3Text.Text = string.Empty;
-
-                        //Aparecen los datos de hacer consultas
-                        label6.Visible = true;
-                        porcentaje.Visible = true;
-                        Favorito.Visible = true;
-                        ganador.Visible = true;
-                        btn_Enviar.Visible = true;
-                        textBox1.Visible = true;
-                        Grid.Visible = true;
-                        btn_Refrescar.Visible = true;
-
-                    }
-                    else
-                    {
-                        MessageBox.Show("Error: no se ha podido registrar al usuario");
-                    }
                 }
                 catch (OverflowException)
                 {
@@ -310,31 +245,13 @@ namespace cliente
                         byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                         server.Send(msg);
 
-                        //Recibimos la respuesta del servidor
-                        byte[] msg2 = new byte[80];
-                        server.Receive(msg2);
-                        mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                        if (mensaje == "E\n")
-                            MessageBox.Show("Error en la búsqueda");
-                        else
-                            MessageBox.Show("El porcentaje de victorias de " + textBox1.Text + " es: " + mensaje);
+                        
                     }
                     else if (Favorito.Checked)
                     {
                         string mensaje = "4/" + textBox1.Text;
                         byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                         server.Send(msg);
-
-                        //Recibimos la respuesta del servidor
-                        byte[] msg2 = new byte[80];
-                        server.Receive(msg2);
-                        mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                        if (mensaje == "E")
-                            MessageBox.Show("Error en la búsqueda");
-                        else if (mensaje == "X")
-                            MessageBox.Show("Este usuario no tiene registrada ninguna partida");
-                        else
-                            MessageBox.Show("El personaje favorito de " + textBox1.Text + " es: " + mensaje);
                     }
                     else if (ganador.Checked)
                     {
@@ -342,18 +259,6 @@ namespace cliente
                         byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                         server.Send(msg);
 
-                        //Recibimos la respuesta del servidor
-                        byte[] msg2 = new byte[80];
-                        server.Receive(msg2);
-                        mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                        if (mensaje == "E")
-                            MessageBox.Show("Error en la búsqueda");
-                        else if (mensaje == "X")
-                        {
-                            MessageBox.Show("No se han obtenido datos en la consulta");
-                        }
-                        else
-                            MessageBox.Show("El gandor de la partida con id: " + textBox1.Text + " fue: " + mensaje);
                     }
                     else
                         errorProvider1.SetError(btn_Enviar, "Debes seleccionar una de las opciones");
@@ -395,9 +300,9 @@ namespace cliente
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
                 server.Send(msg);
             }
-            catch 
+            catch
             {
-                
+
             }
         }
 
@@ -408,31 +313,136 @@ namespace cliente
 
         private void btn_Refrescar_Click(object sender, EventArgs e)
         {
-            string mensaje = "6/" + textBox1.Text;
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
 
-            //Recibimos la respuesta del servidor
-            byte[] msg2 = new byte[80];
-            server.Receive(msg2);
-            mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-            string[] nombres=new string[100];
-            nombres= mensaje.Split('/');
-            MessageBox.Show(nombres[0]);
-            MessageBox.Show(nombres[1]);
-            Grid.ColumnCount = 1;
-            
-            Grid.RowCount = Convert.ToInt32(nombres[0])+1;
-            Grid.Rows[0].Cells[0].Value = "Conectados";
-            for (int i = 1; i < Grid.RowCount; i++)
-            {
-                Grid.Rows[i].Cells[0].Value = nombres[i];
-            }
+
         }
 
         private void Grid_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
+        }
+        private void AtenderServidor()
+        {
+            while (true)
+            {
+                byte[] msg2 = new byte[80];
+                server.Receive(msg2);
+                string[] trozos = Encoding.ASCII.GetString(msg2).Split('/');
+                int codigo = Convert.ToInt32(trozos[0]);
+                MessageBox.Show(trozos[0]);
+                string mensaje;
+                mensaje = trozos[1].Split('\0')[0];
+                MessageBox.Show(mensaje);
+                switch (codigo)
+                {
+                    case 1:
+                        if (mensaje == "OK\n")
+                        {
+                            MessageBox.Show("Usuario encontrado");
+
+                            //Desaparecen los datos de iniciar sesión
+                            label1.Visible = false;
+                            label2.Visible = false;
+                            nombre1Text.Visible = false;
+                            Contra1Text.Visible = false;
+                            btn_Iniciar_Sesion.Visible = false;
+                            btn_Registrarse.Visible = false;
+                            nombre1Text.Text = string.Empty;
+                            Contra1Text.Text = string.Empty;
+
+                            //Aparecen los datos de hacer consultas
+                            label6.Visible = true;
+                            porcentaje.Visible = true;
+                            Favorito.Visible = true;
+                            ganador.Visible = true;
+                            btn_Enviar.Visible = true;
+                            textBox1.Visible = true;
+                            Grid.Visible = true;
+                            btn_Refrescar.Visible = true;
+
+                        }
+                        else
+                        {
+                            MessageBox.Show("Usuario no encontrado");
+                            
+                        }
+                        break;
+                    case 2:
+                        if (mensaje == "OK\n")
+                        {
+                            MessageBox.Show("Usuario Creado");
+                            //Desaparece el registrarse
+                            label3.Visible = false;
+                            label4.Visible = false;
+                            label5.Visible = false;
+                            Nombre2Text.Visible = false;
+                            Contra2Text.Visible = false;
+                            Contra3Text.Visible = false;
+                            btn_Registrarse2.Visible = false;
+                            Nombre2Text.Text = string.Empty;
+                            Contra2Text.Text = string.Empty;
+                            Contra3Text.Text = string.Empty;
+
+                            //Aparecen los datos de hacer consultas
+                            label6.Visible = true;
+                            porcentaje.Visible = true;
+                            Favorito.Visible = true;
+                            ganador.Visible = true;
+                            btn_Enviar.Visible = true;
+                            textBox1.Visible = true;
+                            Grid.Visible = true;
+                            btn_Refrescar.Visible = true; 
+
+                        }
+                        else
+                        {
+                            MessageBox.Show("Error: no se ha podido registrar al usuario");  
+                        }
+                        break;
+                    case 3:
+                        if (mensaje == "E\n")
+                            MessageBox.Show("Error en la búsqueda");
+                        else
+                            MessageBox.Show("El porcentaje de victorias de " + textBox1.Text + " es: " + mensaje);
+                        break;
+                    case 4:
+                        if (mensaje == "E")
+                            MessageBox.Show("Error en la búsqueda");
+                        else if (mensaje == "X")
+                            MessageBox.Show("Este usuario no tiene registrada ninguna partida");
+                        else
+                            MessageBox.Show("El personaje favorito de " + textBox1.Text + " es: " + mensaje);
+                        break;
+                    case 5:
+                        if (mensaje == "E")
+                            MessageBox.Show("Error en la búsqueda");
+                        else if (mensaje == "X")
+                        {
+                            MessageBox.Show("No se han obtenido datos en la consulta");
+                        }
+                        else
+                            MessageBox.Show("El gandor de la partida con id: " + textBox1.Text + " fue: " + mensaje);
+                        break;
+                    case 6:
+          
+          
+              
+                        MessageBox.Show(trozos[1]);
+                        MessageBox.Show(trozos[2]);
+                        Grid.ColumnCount = 1;
+
+                        Grid.RowCount = Convert.ToInt32(trozos[1]) + 1;
+                        Grid.Rows[0].Cells[0].Value = "Conectados";
+                        for (int i = 1; i < Grid.RowCount; i++)
+                        {
+                            Grid.Rows[i].Cells[0].Value = trozos[i+1];
+                        }
+                        Grid.Refresh();
+                        break;
+
+
+                }
+            }
         }
     }
 }
