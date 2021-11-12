@@ -51,7 +51,6 @@
             this.ganador = new System.Windows.Forms.RadioButton();
             this.btn_Enviar = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.btn_Refrescar = new System.Windows.Forms.Button();
             this.Grid = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Grid)).BeginInit();
@@ -162,6 +161,7 @@
             this.Contra2Text.Name = "Contra2Text";
             this.Contra2Text.Size = new System.Drawing.Size(100, 20);
             this.Contra2Text.TabIndex = 9;
+            this.Contra2Text.UseSystemPasswordChar = true;
             this.Contra2Text.Visible = false;
             // 
             // Contra3Text
@@ -171,6 +171,7 @@
             this.Contra3Text.Name = "Contra3Text";
             this.Contra3Text.Size = new System.Drawing.Size(100, 20);
             this.Contra3Text.TabIndex = 10;
+            this.Contra3Text.UseSystemPasswordChar = true;
             this.Contra3Text.Visible = false;
             // 
             // label3
@@ -283,26 +284,14 @@
             this.textBox1.Visible = false;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
-            // btn_Refrescar
-            // 
-            this.btn_Refrescar.Location = new System.Drawing.Point(25, 97);
-            this.btn_Refrescar.Name = "btn_Refrescar";
-            this.btn_Refrescar.Size = new System.Drawing.Size(75, 23);
-            this.btn_Refrescar.TabIndex = 22;
-            this.btn_Refrescar.Text = "Conectados";
-            this.btn_Refrescar.UseVisualStyleBackColor = true;
-            this.btn_Refrescar.Visible = false;
-            this.btn_Refrescar.Click += new System.EventHandler(this.btn_Refrescar_Click);
-            // 
             // Grid
             // 
             this.Grid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.Grid.Location = new System.Drawing.Point(24, 144);
+            this.Grid.Location = new System.Drawing.Point(21, 122);
             this.Grid.Name = "Grid";
-            this.Grid.Size = new System.Drawing.Size(127, 112);
-            this.Grid.TabIndex = 23;
+            this.Grid.Size = new System.Drawing.Size(130, 109);
+            this.Grid.TabIndex = 21;
             this.Grid.Visible = false;
-            this.Grid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Grid_CellContentClick);
             // 
             // Form1
             // 
@@ -310,7 +299,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.Grid);
-            this.Controls.Add(this.btn_Refrescar);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.btn_Enviar);
             this.Controls.Add(this.ganador);
@@ -367,7 +355,6 @@
         private System.Windows.Forms.RadioButton porcentaje;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button btn_Refrescar;
         private System.Windows.Forms.DataGridView Grid;
     }
 }
