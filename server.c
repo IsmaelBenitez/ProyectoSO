@@ -23,26 +23,31 @@ MYSQL *conn; // Connector con el serivdor de MYSQL
 ListaConectados Lista; // Lista de conectados
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;//Estructura para la implementaciÛn de exclusin mutua
 
+
+int i;
+int sockets[100];
+
 //Funciones para actuar sobre la lista de conectados
 int AnadirConectado (ListaConectados *lista, char nombre[60], int socket){
-	printf("He entrado en la funcion\n");
-	printf(" lista.num=%d\n",lista->num);
+
 	if (lista->num == 100)
 	{
-		printf("Estoy en el primer if\n");
+		
 		return -1;
 		
 	}
 	else{
-		printf("Voy a returnear 0\n");
+		
 		strcpy(lista->conectados[lista->num].nombre,nombre);
-		printf("He puesto el nombre\n");
+
 		lista->conectados[lista->num].socket = socket;
-		printf("He puesto el socket\n");
+
 		lista->num++;
-		printf("Lista.num= %d",lista->num);
+
+
 		return 0;
 	}
+
 }
 int DameSocket (ListaConectados *lista, char nombre[20]){
 	// Devuelve el socket o -1 si no est√° en la lista
@@ -92,6 +97,7 @@ int Elimina(ListaConectados *lista, char nombre[20]){
 		return 0;
 		
 	}
+	
 }
 void DameConectados ( ListaConectados *lista, char *conectados[300]){
 	//Pone en conectados los nombres de todos los conectados separados por /. Primero pone el num de conectados
@@ -123,6 +129,17 @@ void DameTodosSockets ( ListaConectados *lista, char nombres[80], char *sockets)
 		p=strtok(NULL,",");
 		
 	}
+}
+void EnviarLista (){
+	char notificacion[300];
+	char conectados[300];
+	DameConectados (&Lista,conectados);
+	printf("Este es el print de la lista de conectados %s\n",conectados);
+	int j;
+	sprintf(notificacion,"6/%s",conectados);
+	printf("%s",notificacion);
+	for (j=0; j<Lista.num; j++)
+		write (Lista.conectados[j].socket,notificacion, strlen(notificacion));
 }
 
 //Thread para atender peticiones de los clientes
@@ -166,7 +183,7 @@ void *AtenderCliente(void *socket) {
 			terminar=1;
 		if(codigo==1)
 		{
-			printf("Estoy en el codigo 1\n");
+			
 			char contra[60];
 			
 			p=strtok(NULL,"/");
@@ -177,33 +194,34 @@ void *AtenderCliente(void *socket) {
 			strcpy(contra,p);
 			
 			
-			i =EstaRegistrado( nombre,contra, err,conn,resultado,row);
-			printf("%d\n",sock_conn);
-			printf("%d\n",i);
+			i =EstaRegistrado( nombre,contra);
+			
 			
 			
 			if (i==1)
 			{
-				printf("Entro en el if porque i=1\n");
+				
 				//Bloqueamos la parte en la que la lista debe ser modificada
 				pthread_mutex_lock(&mutex);
 				i = AnadirConectado(&Lista,nombre,sock_conn);
 				pthread_mutex_unlock(&mutex);
 				
-				printf("he returneado %d\n",i);
+				
+				
 				if(i==0){
-					sprintf(respuesta,"%s\n","OK");
+					sprintf(respuesta,"1/%s","OK");
 					write (sock_conn,respuesta, strlen(respuesta));
+					EnviarLista ();
 				}
 				else{
-					sprintf(respuesta,"%s\n","NO");
+					sprintf(respuesta,"1/%s","NO");
 					
 					write (sock_conn,respuesta, strlen(respuesta));
 				}
 			}
 			else
 			{
-				sprintf(respuesta,"%s\n","NO");
+				sprintf(respuesta,"1/%s","NO");
 				
 				write (sock_conn,respuesta, strlen(respuesta));
 			}
@@ -222,28 +240,33 @@ void *AtenderCliente(void *socket) {
 			p=strtok(NULL,"/");
 			strcpy(contra,p);
 			
-			i=Registrar(nombre, contra,err,conn,resultado,row);
+			i=Registrar(nombre, contra);
 			
 			if(i==1)
 			{
-				sprintf(respuesta,"%s\n","OK");
+				
 				//Bloquemaos la parte deonde la lista est· siendo modificada
 				pthread_mutex_lock(&mutex);
 				i = AnadirConectado(&Lista,nombre,sock_conn);
 				pthread_mutex_unlock(&mutex);
 				
+				
 				if(i==0)
+				{
+					sprintf(respuesta,"2/%s","OK");
 					write (sock_conn,respuesta, strlen(respuesta));
+					EnviarLista();
+				}
 				else
 				{
-					sprintf(respuesta,"%s\n","NO");
+					sprintf(respuesta,"2/%s","NO");
 					
 					write (sock_conn,respuesta, strlen(respuesta));
 				}
 			}
 			else
 			{
-				sprintf(respuesta,"%s\n","NO");
+				sprintf(respuesta,"2/%s","NO");
 				
 				write (sock_conn,respuesta, strlen(respuesta));
 			}
@@ -255,12 +278,12 @@ void *AtenderCliente(void *socket) {
 			
 			p=strtok(NULL,"/");
 			strcpy(nombre,p);
-			PorcentajeVictorias(nombre,respuesta, err,conn,resultado,row);
+			PorcentajeVictorias(nombre,respuesta);
 			printf("%s\n",respuesta);
 			if (strcmp(respuesta,"-1.00")==0)
 			{
-				sprintf(respuesta,"%s\n","E");
-				printf("%s",respuesta);
+				sprintf(respuesta,"%s","E");
+				printf("%s\n",respuesta);
 				write (sock_conn,respuesta, strlen(respuesta));
 			}
 			else
@@ -273,7 +296,7 @@ void *AtenderCliente(void *socket) {
 			
 			p=strtok(NULL,"/");
 			strcpy(nombre,p);
-			JugadorFavorito(nombre,respuesta, err,conn,resultado,row);
+			JugadorFavorito(nombre,respuesta);
 			write (sock_conn,respuesta, strlen(respuesta));
 			
 		}
@@ -283,22 +306,18 @@ void *AtenderCliente(void *socket) {
 			char nombre[60];
 			p=strtok(NULL,"/");
 			strcpy(identificador,p);
-			GanadorPartida(identificador,nombre, err,conn,resultado,row);
+			GanadorPartida(identificador,nombre);
 			write (sock_conn,nombre, strlen(nombre));
 			
 		}
-		if(codigo==6)
-		{
-			char conectados[300];
-			DameConectados (&Lista,conectados);
-			printf("Este es el print de la lista de conectados %s\n",conectados);
-			write (sock_conn,conectados, strlen(conectados));
-		}
+		
+	
 	}
 	//Bloqueamos la parte donde la lista est· siendo modificada
 	pthread_mutex_lock(&mutex);
 	i =Elimina(&Lista,nombre);
 	pthread_mutex_unlock(&mutex);
+	EnviarLista();
 	
 	if(i==0)
 		close(sock_conn);
@@ -306,7 +325,12 @@ void *AtenderCliente(void *socket) {
 		printf("No se puede desconectar a este usuario");
 }
 //Funciones para atender las peticiones del server
-int EstaRegistrado(char nombre[60],char contrasena[60], int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
+int EstaRegistrado(char nombre[60],char contrasena[60]){
+	int err;
+	// Estructura especial para almacenar resultados de consultas 
+	MYSQL_RES *resultado;
+	MYSQL_ROW row;
+	
 	char consulta[500];
 	strcpy(consulta,"Select Nombre,ContraseÒa FROM Jugador WHERE Nombre='");
 	strcat(consulta,nombre);
@@ -327,11 +351,16 @@ int EstaRegistrado(char nombre[60],char contrasena[60], int err,MYSQL *conn,MYSQ
 	else
 		return 1;
 }
-int Registrar(char nombre[60],char contrasena[60], int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
+int Registrar(char nombre[60],char contrasena[60]){
+	int err;
+	// Estructura especial para almacenar resultados de consultas 
+	MYSQL_RES *resultado;
+	MYSQL_ROW row;
+	
 	char consulta[500];
 	char consulta2[500];
 	int yaesta;
-	yaesta=EstaRegistrado(nombre,contrasena, err,conn,resultado,row);
+	yaesta=EstaRegistrado(nombre,contrasena);
 	if (yaesta==0){
 		strcpy(consulta,"SELECT MAX(Identificador) FROM Jugador");
 		err=mysql_query (conn, consulta);
@@ -371,7 +400,12 @@ int Registrar(char nombre[60],char contrasena[60], int err,MYSQL *conn,MYSQL_RES
 	
 }
 
-void PorcentajeVictorias(char nombre[60],char *solucion[10], int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
+void PorcentajeVictorias(char nombre[60],char *solucion[10]){
+	int err;
+	// Estructura especial para almacenar resultados de consultas 
+	MYSQL_RES *resultado;
+	MYSQL_ROW row;
+	
 	char consulta [500];
 	float porcentaje;
 	strcpy(consulta,"SELECT Jugador.Partidas_ganadas, Jugador.Partidas_jugadas FROM Jugador WHERE Nombre = '");
@@ -416,9 +450,14 @@ void PorcentajeVictorias(char nombre[60],char *solucion[10], int err,MYSQL *conn
 		printf("Jugadas: %d \n",Partidas_jugadas);
 		printf("El ratio de victorias es: %.2f \n",porcentaje);
 	}
-	sprintf(solucion,"%.2f",porcentaje);
+	sprintf(solucion,"3/%.2f",porcentaje);
 }
-void JugadorFavorito(char nombre[60],char *avatar[60],int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
+void JugadorFavorito(char nombre[60],char *avatar[60]){
+	int err;
+	// Estructura especial para almacenar resultados de consultas 
+	MYSQL_RES *resultado;
+	MYSQL_ROW row;
+	
 	char consulta[500];
 	int ismael=0;
 	int itziar=0;
@@ -432,14 +471,14 @@ void JugadorFavorito(char nombre[60],char *avatar[60],int err,MYSQL *conn,MYSQL_
 	if (err!=0) {
 		printf ("Error al consultar datos de la base %u %s\n",
 				mysql_errno(conn), mysql_error(conn));
-		strcpy(avatar,"E");
+		strcpy(avatar,"4/E");
 		exit (1);
 	}
 	resultado = mysql_store_result (conn);
 	row = mysql_fetch_row (resultado);
 	if (row == NULL){
 		printf ("No se han obtenido datos en la consulta\n");
-		strcpy(avatar,"X");
+		strcpy(avatar,"4/X");
 	}
 	
 	else
@@ -456,23 +495,23 @@ void JugadorFavorito(char nombre[60],char *avatar[60],int err,MYSQL *conn,MYSQL_
 			else if (strcmp(row[0],"Azahara")==0)
 				azahara=azahara+1;
 			
-			strcpy(avatar,"Ismael");
+			strcpy(avatar,"4/Ismael");
 			int i=ismael;
 			if (i<itziar){
 				i=itziar;
-				strcpy(avatar,"Itziar");
+				strcpy(avatar,"4/Itziar");
 			}
 			if (i<guillem){
 				i=guillem;
-				strcpy(avatar,"Guillem");
+				strcpy(avatar,"4/Guillem");
 			}
 			if (i<victor){
 				i=victor;
-				strcpy(avatar,"Victor");
+				strcpy(avatar,"4/Victor");
 			}
 			if (i<azahara){
 				i=azahara;
-				strcpy(avatar,"Azahara");
+				strcpy(avatar,"4/Azahara");
 			}
 			
 			// obtenemos la siguiente fila
@@ -483,7 +522,12 @@ void JugadorFavorito(char nombre[60],char *avatar[60],int err,MYSQL *conn,MYSQL_
 		
 	}
 }
-void GanadorPartida(char Identificador[60],char *nombre[60],int err,MYSQL *conn,MYSQL_RES *resultado,MYSQL_ROW row){
+void GanadorPartida(char Identificador[60],char *nombre[60]){
+	int err;
+	// Estructura especial para almacenar resultados de consultas 
+	MYSQL_RES *resultado;
+	MYSQL_ROW row;
+	
 	char consulta[500];
 	strcpy(consulta,"SELECT Jugador.nombre FROM (Jugador, Partida) WHERE Partida.Identificador = '");
 	strcat (consulta, Identificador);
@@ -493,20 +537,20 @@ void GanadorPartida(char Identificador[60],char *nombre[60],int err,MYSQL *conn,
 	if (err!=0) {
 		printf ("Error al consultar datos de la base %u %s\n",
 				mysql_errno(conn), mysql_error(conn));
-		strcpy(nombre,"E");
+		strcpy(nombre,"5/E");
 		exit (1);
 	}
 	resultado = mysql_store_result (conn);
 	row = mysql_fetch_row (resultado);
 	if (row == NULL){
 		printf ("No se han obtenido datos en la consulta\n");
-		strcpy(nombre,"X");
+		strcpy(nombre,"5/X");
 	}
 	else
 	{
 		printf("El ganador de la partida %s, es %s \n",Identificador,row[0]);
-		strcpy(nombre,row[0]);
-		printf("%s\n",nombre);
+		sprintf(nombre,"5/%s",row[0]);
+		printf("5/%s\n",nombre);
 	}
 }
 
@@ -537,14 +581,14 @@ int main(int argc, char *argv[]){
 	memset(&serv_adr, 0, sizeof(serv_adr));// inicialitza a zero serv_addr
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(9000);
+	serv_adr.sin_port = htons(9070);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
 	if (listen(sock_listen, 3) < 0)
 		printf("Error en el Listen");
 	
 	//Estructuras para el uso de threads
-	int sockets[100];
+	
 	pthread_t thread[100];
  
 	int i=0;
