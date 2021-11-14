@@ -25,6 +25,19 @@ Servidor concurrente, Lista de conectados y Exclusión mutua
 
 · Comunicada por Ismael Benítez  
 
-URL: https://drive.google.com/file/d/1tFgQxhkcQEJiLVlJzbH5lz0ZY3f7YFiS/view?usp=sharing
+URL: https://drive.google.com/file/d/1tFgQxhkcQEJiLVlJzbH5lz0ZY3f7YFiS/view?usp=sharing  
+
+Versión 3  
+
+Lista de conectados como notificación  
+
+· Generada por Guillem Purtí
+
+· Verificada por Ismael Benítez  
+
+· Comunicada por Itziar Mensa  
+
+URL: https://drive.google.com/file/d/17ruMOeNBum30yYXhjACE-JvcW85K2KRA/view?usp=sharing  
+
 
 
