@@ -19,6 +19,8 @@ namespace cliente
         Thread Atender;
         Boolean Parate;
         Boolean Cambia;
+        string[] Invitados=new string[6];
+        int invitados;
 
 
         
@@ -31,7 +33,7 @@ namespace cliente
         private void btn_Conectar_Click(object sender, EventArgs e)
         {
             //Establecemos conexión con el servidor
-            IPAddress direc = IPAddress.Parse("169.254.15.179");
+            IPAddress direc = IPAddress.Parse("192.168.56.102");
             IPEndPoint ipep = new IPEndPoint(direc, 9070);
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -466,6 +468,23 @@ namespace cliente
                         break;
                 }
             }
+        }
+
+        private void Grid_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (invitados < 6)
+            {
+                int j = e.RowIndex;
+                Invitados[invitados]=Grid[j, 0].Value.ToString();                
+                invitados++;
+            }
+            
+
         }
     }
 }

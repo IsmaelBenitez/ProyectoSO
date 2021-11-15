@@ -292,6 +292,8 @@
             this.Grid.Size = new System.Drawing.Size(130, 109);
             this.Grid.TabIndex = 21;
             this.Grid.Visible = false;
+            this.Grid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Grid_CellContentClick);
+            this.Grid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Grid_CellDoubleClick);
             // 
             // Form1
             // 

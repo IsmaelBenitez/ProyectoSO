@@ -18,10 +18,28 @@ typedef struct{
 	Conectado conectados[100];
 	int num;
 }ListaConectados;
+typedef struct{
+	int ocupado;
+	char nombre1[60];
+	char nombre2[60];
+	char nombre3[60];
+	char nombre4[60];
+	char nombre5[60];
+	char nombre6[60];
+}Partida;
+typedef Partida TPartidas[100];
+
+void inicializar(TPartidas tabla)
+{
+	int i;
+	for(i=0; i<100; i++)
+		tabla[i].ocupado = 0;
+}
 // Variable globales:
 MYSQL *conn; // Connector con el serivdor de MYSQL
 ListaConectados Lista; // Lista de conectados
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;//Estructura para la implementación de exclusin mutua
+TPartidas tabla;
 
 
 int i;
@@ -556,6 +574,7 @@ void GanadorPartida(char Identificador[60],char *nombre[60]){
 
 //MAIN DEL SERVER
 int main(int argc, char *argv[]){
+	inicializar(tabla);
 	//Creamos una conexion al servidor MYSQL 
 	conn = mysql_init(NULL);
 	if (conn==NULL) {
