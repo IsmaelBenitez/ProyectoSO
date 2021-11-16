@@ -21,6 +21,7 @@ namespace cliente
         Boolean Cambia;
         string[] Invitados=new string[6];
         int invitados;
+        string sesion;
 
 
         
@@ -33,8 +34,8 @@ namespace cliente
         private void btn_Conectar_Click(object sender, EventArgs e)
         {
             //Establecemos conexión con el servidor
-            IPAddress direc = IPAddress.Parse("192.168.56.102");
-            IPEndPoint ipep = new IPEndPoint(direc, 9070);
+            IPAddress direc = IPAddress.Parse("169.254.15.179");
+            IPEndPoint ipep = new IPEndPoint(direc, 9000);
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -96,7 +97,8 @@ namespace cliente
                 textBox1.Visible = false;
                 textBox1.Text = string.Empty;
                 btn_Enviar.Enabled = false;
-                Grid.Visible = false; 
+                Grid.Visible = false;
+                btn_Invitar.Visible = false;
 
 
 
@@ -169,6 +171,7 @@ namespace cliente
                     {
                         if (Cambia)
                         {
+                            sesion = nombre1Text.Text;
                             //Desaparecen los datos de iniciar sesión
                             label1.Visible = false;
                             label2.Visible = false;
@@ -187,6 +190,9 @@ namespace cliente
                             btn_Enviar.Visible = true;
                             textBox1.Visible = true;
                             Grid.Visible = true;
+                            btn_Invitar.Visible = true;
+
+
 
                             Parate = true;
                         }
@@ -265,6 +271,7 @@ namespace cliente
                     {
                         if (Cambia)
                         {
+                            sesion = Nombre2Text.Text;
                             //Desaparece el registrarse
                             label3.Visible = false;
                             label4.Visible = false;
@@ -285,6 +292,9 @@ namespace cliente
                             btn_Enviar.Visible = true;
                             textBox1.Visible = true;
                             Grid.Visible = true;
+                            btn_Invitar.Visible = true;
+
+
 
                             Parate = true;
                         }
@@ -315,8 +325,6 @@ namespace cliente
                         string mensaje = "3/" + textBox1.Text;
                         byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                         server.Send(msg);
-
-                        
                     }
                     else if (Favorito.Checked)
                     {
@@ -376,18 +384,6 @@ namespace cliente
 
             }
         }
-
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btn_Refrescar_Click(object sender, EventArgs e)
-        {
-
-
-        }
-
         private void AtenderServidor()
         {
             while (true)
@@ -404,17 +400,11 @@ namespace cliente
                         {
                             MessageBox.Show("Usuario encontrado");
                             Cambia = true;
-
-    
-                       
-                           
-
                         }
                         else
                         {
                             MessageBox.Show("Usuario no encontrado");
-                            Parate = true;
-                            
+                            Parate = true;    
                         }
                         break;
                     case 2:
@@ -477,14 +467,68 @@ namespace cliente
 
         private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
+ 
             if (invitados < 6)
             {
                 int j = e.RowIndex;
-                Invitados[invitados]=Grid[j, 0].Value.ToString();                
-                invitados++;
+                if (Grid.Rows[j].Cells[0].Style.BackColor == Color.Green)
+                {
+                    Grid.Rows[j].Cells[0].Style.BackColor = Color.White;
+                    EliminarInvitado(Grid[0, j].Value.ToString());
+                }
+                else
+                {
+                    if (Grid[0, j].Value.ToString() != sesion)
+                    {
+                        Invitados[invitados] = Grid[0, j].Value.ToString();
+                        Grid.Rows[j].Cells[0].Style.BackColor = Color.Green;
+                        invitados++;
+                    }
+                }
+            }
+
+
+
+        }
+        public void EliminarInvitado(string nombre)
+        {
+            int i = 0;
+            while (i < invitados)
+            {
+                if (nombre == Invitados[i])
+                {
+                    Invitados[i] = null;
+                    int j = i;
+                    while (j < invitados - 1)
+                    {
+                        Invitados[j] = Invitados[j - 1];
+                        j = j + 1;
+                    }
+                    invitados--;
+                }
+                i = i + 1;
+            }
+        }
+
+        private void btn_Invitar_Click(object sender, EventArgs e)
+        {
+            if (invitados < -1)
+                MessageBox.Show("Se necesitan mínimo tres participantes");
+            else
+            {
+                string mensaje = "6";
+
+                int i = 0;
+                while (i < invitados)
+                {
+                    mensaje = mensaje + "/" + Invitados[i];
+                    i++;
+                }
+                MessageBox.Show(mensaje);
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
             }
             
-
         }
     }
 }

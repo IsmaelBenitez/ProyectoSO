@@ -29,8 +29,7 @@ typedef struct{
 }Partida;
 typedef Partida TPartidas[100];
 
-void inicializar(TPartidas tabla)
-{
+void inicializar(TPartidas tabla){
 	int i;
 	for(i=0; i<100; i++)
 		tabla[i].ocupado = 0;
@@ -328,6 +327,10 @@ void *AtenderCliente(void *socket) {
 			write (sock_conn,nombre, strlen(nombre));
 			
 		}
+		if (codigo==6)
+		{
+			
+		}
 		
 	
 	}
@@ -600,7 +603,7 @@ int main(int argc, char *argv[]){
 	memset(&serv_adr, 0, sizeof(serv_adr));// inicialitza a zero serv_addr
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(9070);
+	serv_adr.sin_port = htons(9000);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
 	if (listen(sock_listen, 3) < 0)
