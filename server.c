@@ -20,12 +20,8 @@ typedef struct{
 }ListaConectados;
 typedef struct{
 	int ocupado;
-	char nombre1[60];
-	char nombre2[60];
-	char nombre3[60];
-	char nombre4[60];
-	char nombre5[60];
-	char nombre6[60];
+	int invitaciones;
+	ListaConectados Jugadores;
 }Partida;
 typedef Partida TPartidas[100];
 
@@ -66,18 +62,18 @@ int AnadirConectado (ListaConectados *lista, char nombre[60], int socket){
 	}
 
 }
-int DameSocket (ListaConectados *lista, char nombre[20]){
+int DameSocket ( char nombre[20]){
 	// Devuelve el socket o -1 si no está en la lista
 	int i=0;
 	int encontrado =0;
-	while ((i< lista->num) && !encontrado ){
-		if (strcmp(lista->conectados[i].nombre,nombre)==0)
+	while ((i< Lista.num) && !encontrado ){
+		if (strcmp(Lista.conectados[i].nombre,nombre)==0)
 			encontrado =1;
 		if (!encontrado)
 			i=i+1;
 	}
 	if (encontrado)
-		return lista->conectados[i].socket;
+		return Lista.conectados[i].socket;
 	else
 		return -1;
 	
@@ -123,7 +119,7 @@ void DameConectados ( ListaConectados *lista, char *conectados[300]){
 	for (i=0; i< lista->num; i++)
 		sprintf(conectados, "%s/%s", conectados, lista->conectados[i].nombre);
 }
-void DameTodosSockets ( ListaConectados *lista, char nombres[80], char *sockets){
+void DameTodosSockets ( ListaConectados *lista, char nombres[80], char *sockets[200]){
 	//Escribe una funciÃ³n que recibe un vector de caracteres con los nombres de jugadores
 	//separados por comas y revuelve una cadena de caracteres con los sockets de cada uno
 	//de estos jugadores, tambiÃ©n separados por comas.
@@ -147,6 +143,20 @@ void DameTodosSockets ( ListaConectados *lista, char nombres[80], char *sockets)
 		
 	}
 }
+void DameConectado(int socket,char nombre[20]){
+	int i=0;
+	int encontrado=0;
+	while (i<Lista.num && !encontrado){
+		printf("Estoy en el bucle");
+		if(Lista.conectados[i].socket==socket){
+			strcpy(nombre,Lista.conectados[i].nombre);
+			encontrado=1;
+		}
+		else
+		   i=i+1;
+	}
+}
+//Funciones para enviar notificaciones
 void EnviarLista (){
 	char notificacion[300];
 	char conectados[300];
@@ -158,6 +168,43 @@ void EnviarLista (){
 	for (j=0; j<Lista.num; j++)
 		write (Lista.conectados[j].socket,notificacion, strlen(notificacion));
 }
+void EnviarInvitacion(char nombre[20],int socket,int Id){
+	int i = DameSocket (nombre);
+	char notificacion[200];
+	int j=0;
+	int encontrado1=0;
+	while(j<Lista.num && !encontrado1){
+		
+		if (Lista.conectados[j].socket==socket)
+			encontrado1=1;
+		else
+			j=j+1;
+		
+	}
+	if (i!=-1 && encontrado1==1){
+		sprintf(notificacion,"7/%s/%d",Lista.conectados[j].nombre,Id);
+		write (i,notificacion, strlen(notificacion));
+	}
+	
+}
+void EmpezarPartida(int Id){
+	int i=0;
+	char notificacion[200];
+	sprintf(notificacion,"8/%d",tabla[Id].Jugadores.num);
+	while (i<tabla[Id].Jugadores.num){
+		sprintf(notificacion,"%s/%s",notificacion,tabla[Id].Jugadores.conectados[i].nombre);
+		printf("%s\n",tabla[Id].Jugadores.conectados[i].nombre);
+		i=i+1;
+	}
+	sprintf(notificacion,"%s/%d",notificacion,Id);
+	printf("%s\n",notificacion);
+	i=0;
+	while(i<tabla[Id].Jugadores.num){
+		write (tabla[Id].Jugadores.conectados[i].socket,notificacion, strlen(notificacion));
+		i=i+1;
+	}
+}
+
 
 //Thread para atender peticiones de los clientes
 void *AtenderCliente(void *socket) {
@@ -329,7 +376,61 @@ void *AtenderCliente(void *socket) {
 		}
 		if (codigo==6)
 		{
+			int invitaciones=0;
+			int puesta=0;
+			int i=0;
+			while (i<100 && !puesta){
+				if(tabla[i].ocupado==0){
+					puesta=1;
+					tabla[i].ocupado=1;
+				}
+				else
+				   i=i+1;
+			}
+			char  usuario[20];
+			DameConectado(sock_conn,usuario);
+			pthread_mutex_lock(&mutex);
+			AnadirConectado(&(tabla[i].Jugadores),usuario,sock_conn);
+			pthread_mutex_unlock(&mutex);
+			p=strtok(NULL,"/");
+			//invitaciones=p
+			tabla[i].invitaciones=atoi(p);
+			printf("%d\n",tabla[i].invitaciones);
+			p=strtok(NULL,"/");
 			
+			while (p!=NULL)
+			{
+				//EnviarInvitacion
+				EnviarInvitacion(p,sock_conn,i);
+
+				p=strtok(NULL,"/");
+			}
+			
+		}
+		if (codigo==7){
+			p=strtok(NULL,"/");
+			char respuesta[20];
+			strcpy(respuesta,p);
+			p=strtok(NULL,"/");
+			int Id=atoi(p);
+			if (strcmp(respuesta,"SI")==0){
+				printf("REspuesta SI\n");
+				char nombre[20];
+				DameConectado(sock_conn,&nombre[20]);
+				pthread_mutex_lock(&mutex);
+				AnadirConectado(&(tabla[Id].Jugadores),nombre,sock_conn);
+				pthread_mutex_unlock(&mutex);
+				
+			}
+			else{
+				tabla[Id].invitaciones=tabla[Id].invitaciones-1;
+			}
+			//Comprobar si la partida esta lista para empezar
+			if (tabla[Id].invitaciones==tabla[Id].Jugadores.num){
+				//Partida lista para empezar
+				printf("Partida lista para empezar\n");
+				EmpezarPartida(Id);
+			}
 		}
 		
 	

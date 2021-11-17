@@ -22,6 +22,7 @@ namespace cliente
         string[] Invitados=new string[6];
         int invitados;
         string sesion;
+        string[] orden = new string[6];
 
 
         
@@ -368,6 +369,8 @@ namespace cliente
         private void Form1_Load(object sender, EventArgs e)
         {
             Grid.ColumnCount = 1;
+            
+
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -456,6 +459,37 @@ namespace cliente
                         }
 
                         break;
+                    case 7:
+                        string host = trozos[1];
+                        int Id = Convert.ToInt32(trozos[2]);
+                        DialogResult dialogResult = MessageBox.Show(host+" te ha invitado a unirte a su partida. Aceptas?", "Invitación", MessageBoxButtons.YesNo);
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            string Mensaje = "7/SI" + "/" + Id.ToString();
+
+                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
+                            server.Send(msg);
+                        }
+                        else if (dialogResult == DialogResult.No)
+                        {
+                            string Mensaje = "7/NO" + "/" + Id.ToString();
+                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
+                            server.Send(msg);
+
+                        }
+                        break;
+                    case 8:
+                        int j = 0;
+                        MessageBox.Show("La partida va a empezar");
+                        while (j < Convert.ToInt32(trozos[1]))
+                        {
+                            orden[j] = trozos[j + 2];
+                            MessageBox.Show(orden[j]);
+                            j++;
+                        }
+
+                        break;
+                            
                 }
             }
         }
@@ -516,7 +550,7 @@ namespace cliente
                 MessageBox.Show("Se necesitan mínimo tres participantes");
             else
             {
-                string mensaje = "6";
+                string mensaje = "6/"+(invitados+1);
 
                 int i = 0;
                 while (i < invitados)
