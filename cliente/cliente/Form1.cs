@@ -36,7 +36,7 @@ namespace cliente
         {
             //Establecemos conexión con el servidor
             IPAddress direc = IPAddress.Parse("169.254.15.179");
-            IPEndPoint ipep = new IPEndPoint(direc, 9000);
+            IPEndPoint ipep = new IPEndPoint(direc, 9070);
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -115,7 +115,7 @@ namespace cliente
                 Contra2Text.Text = string.Empty;
                 Contra3Text.Text = string.Empty;
 
-                //Limpiamos el data grid view de conectados
+                VaciarInvitados();
 
             }
             catch
@@ -561,8 +561,24 @@ namespace cliente
                 MessageBox.Show(mensaje);
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
+                VaciarInvitados();
             }
             
+        }
+        public void VaciarInvitados()
+        {
+            for(int i = 0; i < invitados; i++)
+            {
+                Invitados[i] = null;
+            }
+            invitados = 0;
+            int j = 0;
+            int R = Grid.Rows.Count;
+            while (j< R)
+            {
+                Grid.Rows[j].Cells[0].Style.BackColor = Color.White;
+                j++;
+            }
         }
     }
 }
