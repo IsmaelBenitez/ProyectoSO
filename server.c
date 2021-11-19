@@ -143,13 +143,14 @@ void DameTodosSockets ( ListaConectados *lista, char nombres[80], char *sockets[
 		
 	}
 }
-void DameConectado(int socket,char nombre[20]){
+void DameConectado(int socket,char *nombre[20]){
 	int i=0;
 	int encontrado=0;
 	while (i<Lista.num && !encontrado){
-		printf("Estoy en el bucle");
+		printf("Estoy en el bucle\n");
 		if(Lista.conectados[i].socket==socket){
 			strcpy(nombre,Lista.conectados[i].nombre);
+			printf("Este es el nombre que devuelvo para la lista %s\n",nombre);
 			encontrado=1;
 		}
 		else
@@ -388,7 +389,7 @@ void *AtenderCliente(void *socket) {
 				   i=i+1;
 			}
 			char  usuario[20];
-			DameConectado(sock_conn,usuario);
+			DameConectado(sock_conn,&usuario);
 			pthread_mutex_lock(&mutex);
 			AnadirConectado(&(tabla[i].Jugadores),usuario,sock_conn);
 			pthread_mutex_unlock(&mutex);
@@ -416,7 +417,8 @@ void *AtenderCliente(void *socket) {
 			if (strcmp(respuesta,"SI")==0){
 				printf("REspuesta SI\n");
 				char nombre[20];
-				DameConectado(sock_conn,&nombre[20]);
+				DameConectado(sock_conn,&nombre);
+				printf("Este es el nombre despues de la funcion dame conectado %s\n",nombre);
 				pthread_mutex_lock(&mutex);
 				AnadirConectado(&(tabla[Id].Jugadores),nombre,sock_conn);
 				pthread_mutex_unlock(&mutex);
@@ -704,7 +706,7 @@ int main(int argc, char *argv[]){
 	memset(&serv_adr, 0, sizeof(serv_adr));// inicialitza a zero serv_addr
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(9000);
+	serv_adr.sin_port = htons(9070);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
 	if (listen(sock_listen, 3) < 0)
