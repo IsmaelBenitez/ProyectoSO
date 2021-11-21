@@ -28,3 +28,20 @@ Servidor concurrente, Lista de conectados y Exclusión mutua
 URL: https://drive.google.com/file/d/1tFgQxhkcQEJiLVlJzbH5lz0ZY3f7YFiS/view?usp=sharing
 
 
+Versión 3  
+
+Lista de conectados como notificación  
+
+· Generada por Guillem Purtí
+· Verificada por Ismael Benítez
+· Comunicada por Itziar Mensa
+
+Versión 4  
+
+Tabla de partidas: Invitaciones  
+
+· Generada por Ismael Benítez  
+
+· Verificada por Itziar Mensa  
+
+· Comunicada por Guillem Purtí  
