@@ -50,3 +50,5 @@ Tabla de partidas: Invitaciones
 · Verificada por Itziar Mensa  
 
 · Comunicada por Guillem Purtí  
+
+URL: https://drive.google.com/file/d/1aZYgNeQ7QnXTc3XUQQlX4hXcz0L5o8Wn/view?usp=sharing  
