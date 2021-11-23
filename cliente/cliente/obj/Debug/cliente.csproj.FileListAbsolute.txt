@@ -28,3 +28,4 @@ C:\Users\itzia\OneDrive\Escritorio\Uni\3r\1r quatri\SO\Proyecto SO\ProyectoSO\cl
 C:\Users\itzia\OneDrive\Escritorio\Uni\3r\1r quatri\SO\Proyecto SO\ProyectoSO\cliente\cliente\obj\Debug\cliente.csproj.CoreCompileInputs.cache
 C:\Users\itzia\OneDrive\Escritorio\Uni\3r\1r quatri\SO\Proyecto SO\ProyectoSO\cliente\cliente\obj\Debug\cliente.exe
 C:\Users\itzia\OneDrive\Escritorio\Uni\3r\1r quatri\SO\Proyecto SO\ProyectoSO\cliente\cliente\obj\Debug\cliente.pdb
+C:\Users\ismae\Documents\GitHub\ProyectoSO\cliente\cliente\obj\Debug\cliente.Partida.resources

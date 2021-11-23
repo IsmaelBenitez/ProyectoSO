@@ -17,19 +17,23 @@ namespace cliente
     {
         Socket server;
         Thread Atender;
-        Boolean Parate;
-        Boolean Cambia;
+        List<Partida> formularios = new List<Partida>();
+        List<int> IDs = new List<int>();
+
+        delegate void DelegadoParaEscribir();
+        delegate void DelegadoParaDataGridView(string[] texto);
+        delegate void DelegadoParaDarMensaje(string mensaje, int id);
         string[] Invitados=new string[6];
         int invitados;
         string sesion;
         string[] orden = new string[6];
+     
 
 
         
         public Form1()
         {
             InitializeComponent();
-            CheckForIllegalCrossThreadCalls = false;
         }
 
         private void btn_Conectar_Click(object sender, EventArgs e)
@@ -163,43 +167,7 @@ namespace cliente
                     string Mensaje = "1/" + nombre1Text.Text + "/" + Contra1Text.Text;
 
                     byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
-                    server.Send(msg);
-
-                    Parate = false;
-                    Cambia=false;
-      
-                    while (!Parate)
-                    {
-                        if (Cambia)
-                        {
-                            sesion = nombre1Text.Text;
-                            //Desaparecen los datos de iniciar sesión
-                            label1.Visible = false;
-                            label2.Visible = false;
-                            nombre1Text.Visible = false;
-                            Contra1Text.Visible = false;
-                            btn_Iniciar_Sesion.Visible = false;
-                            btn_Registrarse.Visible = false;
-                            nombre1Text.Text = string.Empty;
-                            Contra1Text.Text = string.Empty;
-
-                            //Aparecen los datos de hacer consultas
-                            label6.Visible = true;
-                            porcentaje.Visible = true;
-                            Favorito.Visible = true;
-                            ganador.Visible = true;
-                            btn_Enviar.Visible = true;
-                            textBox1.Visible = true;
-                            Grid.Visible = true;
-                            btn_Invitar.Visible = true;
-
-
-
-                            Parate = true;
-                        }
-
-                    }
-                    
+                    server.Send(msg);                    
                 }
                 catch (OverflowException)
                 {
@@ -265,42 +233,7 @@ namespace cliente
                     byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
                     server.Send(msg);
 
-                    Parate = false;
-                    Cambia = false;
-                    
-                    while(!Parate)
-                    {
-                        if (Cambia)
-                        {
-                            sesion = Nombre2Text.Text;
-                            //Desaparece el registrarse
-                            label3.Visible = false;
-                            label4.Visible = false;
-                            label5.Visible = false;
-                            Nombre2Text.Visible = false;
-                            Contra2Text.Visible = false;
-                            Contra3Text.Visible = false;
-                            btn_Registrarse2.Visible = false;
-                            Nombre2Text.Text = string.Empty;
-                            Contra2Text.Text = string.Empty;
-                            Contra3Text.Text = string.Empty;
-
-                            //Aparecen los datos de hacer consultas
-                            label6.Visible = true;
-                            porcentaje.Visible = true;
-                            Favorito.Visible = true;
-                            ganador.Visible = true;
-                            btn_Enviar.Visible = true;
-                            textBox1.Visible = true;
-                            Grid.Visible = true;
-                            btn_Invitar.Visible = true;
-
-
-
-                            Parate = true;
-                        }
-                    }
-
+                   
                 }
                 catch (OverflowException)
                 {
@@ -391,105 +324,139 @@ namespace cliente
         {
             while (true)
             {
-                byte[] msg2 = new byte[80];
-                server.Receive(msg2);
-                string mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                string[] trozos = mensaje.Split('/');
-                int codigo = Convert.ToInt32(trozos[0]);
-                switch (codigo)
+                try
                 {
-                    case 1:
-                        if (trozos[1] == "OK")
-                        {
-                            MessageBox.Show("Usuario encontrado");
-                            Cambia = true;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Usuario no encontrado");
-                            Parate = true;    
-                        }
-                        break;
-                    case 2:
-                        if (trozos[1] == "OK")
-                        {
-                            MessageBox.Show("Usuario Creado");
-                            Cambia = true;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Error: no se ha podido registrar al usuario");
-                            Parate = true;
-                        }
-                        break;
-                    case 3:
-                        if (trozos[1] == "E")
-                            MessageBox.Show("Error en la búsqueda");
-                        else
-                            MessageBox.Show("El porcentaje de victorias de " + textBox1.Text + " es: " + trozos[1]);
-                        break;
-                    case 4:
-                        if (trozos[1] == "E")
-                            MessageBox.Show("Error en la búsqueda");
-                        else if (trozos[1] == "X")
-                            MessageBox.Show("Este usuario no tiene registrada ninguna partida");
-                        else
-                            MessageBox.Show("El personaje favorito de " + textBox1.Text + " es: " + trozos[1]);
-                        break;
-                    case 5:
-                        if (trozos[1] == "E")
-                            MessageBox.Show("Error en la búsqueda");
-                        else if (trozos[1] == "X")
-                        {
-                            MessageBox.Show("No se han obtenido datos en la consulta");
-                        }
-                        else
-                            MessageBox.Show("El gandor de la partida con id: " + textBox1.Text + " fue: " + trozos[1]);
-                        break;
-                    case 6:
+                    byte[] msg2 = new byte[80];
+                    server.Receive(msg2);
+                    string mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+                    string[] trozos = mensaje.Split('/');
+                
+                    int codigo = Convert.ToInt32(trozos[0]);
+                    switch (codigo)
+                    {
+                        case 1:
+                            if (trozos[1] == "OK")
+                            {
+                                MessageBox.Show("Usuario encontrado");
+                                DelegadoParaEscribir delegado = new DelegadoParaEscribir(DesaparecerIniciarSesion);
+                                this.Invoke(delegado);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Usuario no encontrado");
 
-                        int nfilas= Convert.ToInt32(trozos[1]);
+                            }
+                            break;
+                        case 2:
+                            if (trozos[1] == "OK")
+                            {
+                                MessageBox.Show("Usuario Creado");
+                                DelegadoParaEscribir delegado1 = new DelegadoParaEscribir(DesaparecerRegistarse);
+                                this.Invoke(delegado1);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Error: no se ha podido registrar al usuario");
 
-                        Grid.Rows.Clear();
+                            }
+                            break;
+                        case 3:
+                            if (trozos[1] == "E")
+                                MessageBox.Show("Error en la búsqueda");
+                            else
+                                MessageBox.Show("El porcentaje de victorias de " + textBox1.Text + " es: " + trozos[1]);
+                            break;
+                        case 4:
+                            if (trozos[1] == "E")
+                                MessageBox.Show("Error en la búsqueda");
+                            else if (trozos[1] == "X")
+                                MessageBox.Show("Este usuario no tiene registrada ninguna partida");
+                            else
+                                MessageBox.Show("El personaje favorito de " + textBox1.Text + " es: " + trozos[1]);
+                            break;
+                        case 5:
+                            if (trozos[1] == "E")
+                                MessageBox.Show("Error en la búsqueda");
+                            else if (trozos[1] == "X")
+                            {
+                                MessageBox.Show("No se han obtenido datos en la consulta");
+                            }
+                            else
+                                MessageBox.Show("El gandor de la partida con id: " + textBox1.Text + " fue: " + trozos[1]);
+                            break;
+                        case 6:
 
-                        for (int i = 1; i <= nfilas; i++)
-                        {
-                            string usuario = trozos[i + 1];
-                            Grid.Rows.Add(usuario);
-                        }
+                            DelegadoParaDataGridView delegado2 = new DelegadoParaDataGridView(PonerLista);
+                            this.Invoke(delegado2, new object[] { trozos });
 
-                        break;
-                    case 7:
-                        string host = trozos[1];
-                        int Id = Convert.ToInt32(trozos[2]);
-                        DialogResult dialogResult = MessageBox.Show(host+" te ha invitado a unirte a su partida. Aceptas?", "Invitación", MessageBoxButtons.YesNo);
-                        if (dialogResult == DialogResult.Yes)
-                        {
-                            string Mensaje = "7/SI" + "/" + Id.ToString();
 
-                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
-                            server.Send(msg);
-                        }
-                        else if (dialogResult == DialogResult.No)
-                        {
-                            string Mensaje = "7/NO" + "/" + Id.ToString();
-                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
-                            server.Send(msg);
+                            break;
+                        case 7:
+                            string host = trozos[1];
+                            int Id = Convert.ToInt32(trozos[2]);
+                            DialogResult dialogResult = MessageBox.Show(host + " te ha invitado a unirte a su partida. Aceptas?", "Invitación", MessageBoxButtons.YesNo);
+                            if (dialogResult == DialogResult.Yes)
+                            {
+                                string Mensaje = "7/SI" + "/" + Id.ToString();
 
-                        }
-                        break;
-                    case 8:
-                        int j = 0;
-                        MessageBox.Show("La partida va a empezar");
-                        while (j < Convert.ToInt32(trozos[1]))
-                        {
-                            orden[j] = trozos[j + 2];
-                            MessageBox.Show(orden[j]);
-                            j++;
-                        }
+                                byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
+                                server.Send(msg);
+                            }
+                            else if (dialogResult == DialogResult.No)
+                            {
+                                string Mensaje = "7/NO" + "/" + Id.ToString();
+                                byte[] msg = System.Text.Encoding.ASCII.GetBytes(Mensaje);
+                                server.Send(msg);
 
-                        break;
-                            
+                            }
+                            break;
+                        case 8:
+                            int j = 0;
+                            MessageBox.Show("La partida va a empezar");
+                            while (j < Convert.ToInt32(trozos[1]))
+                            {
+                                orden[j] = trozos[j + 2];
+                                j++;
+                            }
+
+                            ThreadStart ts = delegate { IniciarPartida(trozos, sesion); };
+                            Thread T = new Thread(ts);
+                            T.Start();
+
+                            break;
+                        case 9:
+                            int ID = Convert.ToInt32(trozos[1]);
+                            int i = 0;
+                            Boolean encontrado = false;
+                            while (i < IDs.Count && !encontrado)
+                            {
+                                if (IDs[i] == ID)
+                                    encontrado = true;
+                                else
+                                    i++;
+                            }
+                            if (encontrado)
+                            {
+                                formularios[i].RecibirMensaje(trozos[2]);
+                                //DelegadoParaDarMensaje delegado = new DelegadoParaDarMensaje(DarMensaje);
+                                //this.Invoke(delegado, new object[] { trozos[2], i });
+                            }
+                            break;
+
+
+                    }
+                }
+                catch (System.FormatException)
+                {
+                    continue;
+                }
+                catch (System.Net.Sockets.SocketException)
+                {
+                    MessageBox.Show("El servidor ha fallado");
+                    server.Shutdown(SocketShutdown.Both);
+                    server.Close();
+                    Atender.Abort();
+                    this.Close();
                 }
             }
         }
@@ -524,7 +491,7 @@ namespace cliente
 
 
         }
-        public void EliminarInvitado(string nombre)
+        private void EliminarInvitado(string nombre)
         {
             int i = 0;
             while (i < invitados)
@@ -565,7 +532,7 @@ namespace cliente
             }
             
         }
-        public void VaciarInvitados()
+        private void VaciarInvitados()
         {
             for(int i = 0; i < invitados; i++)
             {
@@ -579,6 +546,81 @@ namespace cliente
                 Grid.Rows[j].Cells[0].Style.BackColor = Color.White;
                 j++;
             }
+        }
+        private void DesaparecerIniciarSesion()
+        {
+            sesion = nombre1Text.Text;
+            //Desaparecen los datos de iniciar sesión
+            label1.Visible = false;
+            label2.Visible = false;
+            nombre1Text.Visible = false;
+            Contra1Text.Visible = false;
+            btn_Iniciar_Sesion.Visible = false;
+            btn_Registrarse.Visible = false;
+            nombre1Text.Text = string.Empty;
+            Contra1Text.Text = string.Empty;
+            //Aparecen los datos de hacer consultas
+            label6.Visible = true;
+            porcentaje.Visible = true;
+            Favorito.Visible = true;
+            ganador.Visible = true;
+            btn_Enviar.Visible = true;
+            textBox1.Visible = true;
+            Grid.Visible = true;
+            btn_Invitar.Visible = true;
+
+
+
+        }
+        private void DesaparecerRegistarse()
+        {
+            sesion = Nombre2Text.Text;
+            //Desaparece el registrarse
+            label3.Visible = false;
+            label4.Visible = false;
+            label5.Visible = false;
+            Nombre2Text.Visible = false;
+            Contra2Text.Visible = false;
+            Contra3Text.Visible = false;
+            btn_Registrarse2.Visible = false;
+            Nombre2Text.Text = string.Empty;
+            Contra2Text.Text = string.Empty;
+            Contra3Text.Text = string.Empty;
+
+            //Aparecen los datos de hacer consultas
+            label6.Visible = true;
+            porcentaje.Visible = true;
+            Favorito.Visible = true;
+            ganador.Visible = true;
+            btn_Enviar.Visible = true;
+            textBox1.Visible = true;
+            Grid.Visible = true;
+            btn_Invitar.Visible = true;
+        }
+        private void PonerLista(string[] trozos)
+        {
+            int nfilas = Convert.ToInt32(trozos[1]);
+
+            Grid.Rows.Clear();
+
+            for (int i = 1; i <= nfilas; i++)
+            {
+                string usuario = trozos[i + 1];
+                Grid.Rows.Add(usuario);
+            }
+        }
+       
+        private void IniciarPartida(string[] trozos,string sesion)
+        {
+            int Id = Convert.ToInt32(trozos[Convert.ToInt32(trozos[1]) + 2]);
+            Partida f = new Partida(server,trozos,sesion);
+            formularios.Add(f);
+            IDs.Add(Id);
+            f.ShowDialog();
+        }
+        private void DarMensaje(string mensaje, int i)
+        {
+            formularios[i].RecibirMensaje(mensaje);
         }
     }
 }
