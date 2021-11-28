@@ -35,8 +35,6 @@ MYSQL *conn; // Connector con el serivdor de MYSQL
 ListaConectados Lista; // Lista de conectados
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;//Estructura para la implementación de exclusin mutua
 TPartidas tabla;
-
-
 int i;
 int sockets[100];
 
@@ -198,6 +196,16 @@ void EmpezarPartida(int Id){
 		i=i+1;
 	}
 	sprintf(notificacion,"%s/%d",notificacion,Id);
+	printf("%s\n",notificacion);
+	i=0;
+	while(i<tabla[Id].Jugadores.num){
+		write (tabla[Id].Jugadores.conectados[i].socket,notificacion, strlen(notificacion));
+		i=i+1;
+	}
+}
+void EnviarMensaje(int Id,char nombre[20],char mensaje[100]){
+	char notificacion[200];
+	sprintf(notificacion,"9/%d/%s: %s",Id,nombre,mensaje);
 	printf("%s\n",notificacion);
 	i=0;
 	while(i<tabla[Id].Jugadores.num){
@@ -433,6 +441,21 @@ void *AtenderCliente(void *socket) {
 				printf("Partida lista para empezar\n");
 				EmpezarPartida(Id);
 			}
+		}
+		if (codigo==8){
+
+			p=strtok(NULL,"/");
+			int ID=atoi(p);
+			p=strtok(NULL,"/");
+			char nombre[20];
+			strcpy(nombre,p);
+			p=strtok(NULL,"/");
+			char mensaje[100];
+			strcpy(mensaje,p);
+			EnviarMensaje(ID,nombre,mensaje);
+			
+			
+			
 		}
 		
 	
@@ -706,7 +729,7 @@ int main(int argc, char *argv[]){
 	memset(&serv_adr, 0, sizeof(serv_adr));// inicialitza a zero serv_addr
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(9070);
+	serv_adr.sin_port = htons(9000);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
 	if (listen(sock_listen, 3) < 0)

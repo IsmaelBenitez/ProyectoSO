@@ -40,7 +40,7 @@ namespace cliente
         {
             //Establecemos conexión con el servidor
             IPAddress direc = IPAddress.Parse("169.254.15.179");
-            IPEndPoint ipep = new IPEndPoint(direc, 9070);
+            IPEndPoint ipep = new IPEndPoint(direc, 9000);
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -438,8 +438,7 @@ namespace cliente
                             if (encontrado)
                             {
                                 formularios[i].RecibirMensaje(trozos[2]);
-                                //DelegadoParaDarMensaje delegado = new DelegadoParaDarMensaje(DarMensaje);
-                                //this.Invoke(delegado, new object[] { trozos[2], i });
+                          
                             }
                             break;
 
@@ -479,12 +478,15 @@ namespace cliente
                 }
                 else
                 {
-                    if (Grid[0, j].Value.ToString() != sesion)
-                    {
-                        Invitados[invitados] = Grid[0, j].Value.ToString();
-                        Grid.Rows[j].Cells[0].Style.BackColor = Color.Green;
-                        invitados++;
-                    }
+                    //if (Grid[0, j].Value.ToString() != sesion)
+                    //{
+                    //    Invitados[invitados] = Grid[0, j].Value.ToString();
+                    //    Grid.Rows[j].Cells[0].Style.BackColor = Color.Green;
+                    //    invitados++;
+                    //}
+                    Invitados[invitados] = Grid[0, j].Value.ToString();
+                    Grid.Rows[j].Cells[0].Style.BackColor = Color.Green;
+                    invitados++;
                 }
             }
 

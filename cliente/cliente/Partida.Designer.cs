@@ -36,22 +36,22 @@
             // Chat
             // 
             this.Chat.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.Chat.Location = new System.Drawing.Point(505, 239);
+            this.Chat.Location = new System.Drawing.Point(727, 188);
             this.Chat.Name = "Chat";
             this.Chat.Size = new System.Drawing.Size(247, 99);
             this.Chat.TabIndex = 26;
-    
             // 
             // MensajeBox
             // 
-            this.MensajeBox.Location = new System.Drawing.Point(580, 355);
+            this.MensajeBox.Location = new System.Drawing.Point(802, 317);
             this.MensajeBox.Name = "MensajeBox";
             this.MensajeBox.Size = new System.Drawing.Size(172, 20);
             this.MensajeBox.TabIndex = 27;
+            this.MensajeBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.MensajeBox_KeyPress);
             // 
             // btn_chat
             // 
-            this.btn_chat.Location = new System.Drawing.Point(677, 415);
+            this.btn_chat.Location = new System.Drawing.Point(899, 376);
             this.btn_chat.Name = "btn_chat";
             this.btn_chat.Size = new System.Drawing.Size(75, 23);
             this.btn_chat.TabIndex = 28;
@@ -63,12 +63,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(996, 423);
             this.Controls.Add(this.btn_chat);
             this.Controls.Add(this.MensajeBox);
             this.Controls.Add(this.Chat);
             this.Name = "Partida";
             this.Text = "Partida";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.Load += new System.EventHandler(this.Partida_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
